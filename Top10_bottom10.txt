@@ -1,0 +1,53 @@
+=== TOP 10 BAT SPEED ADJUSTERS (slow down most with 2 strikes) ===
+                     name  bat_speed_0s  bat_speed_2s  bat_speed_adj  \
+key_mlbam                                                              
+691019          Kyle Teel         71.26         65.11           6.15   
+516782     Starling Marte         73.55         68.02           5.53   
+666185      Dylan Carlson          70.8         65.31           5.49   
+670623      Isaac Paredes         71.01         65.76           5.25   
+660271      Shohei Ohtani         76.58         71.59            5.0   
+665926     Andrés Giménez         70.52         65.62            4.9   
+647351       Abraham Toro         70.96         66.07           4.89   
+624641       Edmundo Sosa         73.39         68.52           4.87   
+681082       Bryson Stott         71.41         66.58           4.83   
+676609     José Caballero         70.46         65.63           4.83   
+
+           swings_2s  
+key_mlbam             
+691019           207  
+516782           225  
+666185           186  
+670623           343  
+660271           429  
+665926           284  
+647351           218  
+624641           195  
+681082           493  
+676609           246  
+
+=== BOTTOM 10 BAT SPEED ADJUSTERS (slow down least or speed up) ===
+                     name  bat_speed_0s  bat_speed_2s  bat_speed_adj  \
+key_mlbam                                                              
+671221        Drew Waters         70.24         70.41          -0.17   
+677950        Alek Thomas          69.6         69.29           0.31   
+657557        Paul Dejong         71.37         71.01           0.36   
+686668      Brenton Doyle         70.16         69.75           0.41   
+677595     Ronny Mauricio         72.32         71.87           0.45   
+656180        Riley Adams         76.99         76.54           0.45   
+680776       Jarren Duran         73.65         73.09           0.55   
+663993     Nathaniel Lowe          71.7         71.14           0.55   
+650490         Yandy Díaz         72.77         72.22           0.56   
+681393       Connor Norby         68.49         67.92           0.57   
+
+           swings_2s  
+key_mlbam             
+671221           144  
+677950           291  
+657557           169  
+686668           298  
+677595           133  
+656180           231  
+680776           417  
+663993           492  
+650490           402  
+681393           216  
