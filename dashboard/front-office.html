@@ -1,0 +1,953 @@
+<title>Dynasty Yr 1 Front Office</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#F1F4F0; --surface:#FCFDFB; --surface2:#E9EEE8; --inset:#EFF3EE;
+    --ink:#111A15; --ink2:#45524A; --mute:#6E7C73;
+    --line:rgba(17,26,21,.12); --hairline:rgba(17,26,21,.08);
+    --accent:#1E7A4C; --accent-ink:#14603A; --money:#8A5C00; --danger:#B4352F;
+    --chip-ink:#111A15;
+    --wr:#2a78d6; --te:#eb6834; --rb:#1baf7a; --k:#eda100; --qb:#e87ba4;
+    --tip-bg:#111A15; --tip-ink:#F2F5F1;
+    --shadow:0 1px 2px rgba(17,26,21,.05),0 4px 14px rgba(17,26,21,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0C1310; --surface:#131E19; --surface2:#1A2820; --inset:#101A15;
+      --ink:#F2F5F1; --ink2:#ADBBB1; --mute:#7E8C82;
+      --line:rgba(242,245,241,.14); --hairline:rgba(242,245,241,.08);
+      --accent:#4EC286; --accent-ink:#63D598; --money:#E8B54A; --danger:#E66767;
+      --chip-ink:#F2F5F1;
+      --wr:#3987e5; --te:#d95926; --rb:#199e70; --k:#c98500; --qb:#d55181;
+      --tip-bg:#F2F5F1; --tip-ink:#111A15;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C1310; --surface:#131E19; --surface2:#1A2820; --inset:#101A15;
+    --ink:#F2F5F1; --ink2:#ADBBB1; --mute:#7E8C82;
+    --line:rgba(242,245,241,.14); --hairline:rgba(242,245,241,.08);
+    --accent:#4EC286; --accent-ink:#63D598; --money:#E8B54A; --danger:#E66767;
+    --chip-ink:#F2F5F1;
+    --wr:#3987e5; --te:#d95926; --rb:#199e70; --k:#c98500; --qb:#d55181;
+    --tip-bg:#F2F5F1; --tip-ink:#111A15;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px rgba(0,0,0,.25);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;line-height:1.5;margin:0;-webkit-text-size-adjust:100%}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .disp{font-family:Oswald,"Arial Narrow",Impact,sans-serif;text-transform:uppercase}
+
+  /* ---------- header ---------- */
+  header{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--line)}
+  .hd-top{max-width:1080px;margin:0 auto;padding:14px 20px 10px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .wordmark{font-family:Oswald,"Arial Narrow",Impact,sans-serif;text-transform:uppercase;font-weight:700;
+    font-size:clamp(22px,4.5vw,30px);letter-spacing:.02em;line-height:1;text-wrap:balance}
+  .wordmark small{display:block;font-size:11px;font-weight:600;letter-spacing:.22em;color:var(--accent-ink);margin-bottom:3px}
+  .hd-meta{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2)}
+  #age-stamp{font-size:11.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+  #age-stamp.stale{color:var(--money);font-weight:600}
+  .rbtn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+    font:600 12px Barlow,sans-serif;border-radius:99px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+  .rbtn:hover{border-color:var(--accent);color:var(--accent-ink)}
+  .rbtn[disabled]{opacity:.6;cursor:wait}
+  nav{max-width:1080px;margin:0 auto;padding:0 12px;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  .tab{appearance:none;background:none;border:none;border-bottom:3px solid transparent;color:var(--ink2);
+    font:600 13px/1 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.1em;
+    padding:12px 14px 11px;cursor:pointer;white-space:nowrap}
+  .tab:hover{color:var(--ink)}
+  .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+  .tab:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+  /* ---------- layout ---------- */
+  main{max-width:1080px;margin:0 auto;padding:22px 20px 70px;display:flex;flex-direction:column;gap:22px}
+  section[hidden]{display:none}
+  section{display:flex;flex-direction:column;gap:18px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .sec-head h2{font:600 16px/1.2 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.14em;margin:0}
+  .sec-head .note{font-size:12px;color:var(--mute);margin-left:auto;text-align:right}
+  .card{background:var(--surface);border:1px solid var(--hairline);border-radius:10px;box-shadow:var(--shadow);padding:16px 18px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  h3{font:600 12px/1.3 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.16em;
+    color:var(--ink2);margin:0 0 12px}
+
+  /* stat tiles */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .tile{background:var(--surface);border:1px solid var(--hairline);border-radius:10px;box-shadow:var(--shadow);padding:14px 16px}
+  .tile .v{font:600 30px/1.05 Oswald,"Arial Narrow",sans-serif;letter-spacing:.01em}
+  .tile .v .money{color:var(--money)}
+  .tile .k{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:5px}
+
+  /* chips & badges */
+  .pos{display:inline-flex;align-items:center;gap:5px;font:600 11px/1 Barlow,sans-serif;letter-spacing:.06em;
+    padding:3px 7px;border-radius:99px;background:var(--surface2);color:var(--ink2);white-space:nowrap}
+  .pos i{width:8px;height:8px;border-radius:2px;display:inline-block}
+  .money{color:var(--money)}
+  .arrow{color:var(--mute)}
+  .src{font-size:11.5px;color:var(--mute)}
+
+  /* tables */
+  .twrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th{font:600 10.5px/1.3 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--mute);text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid var(--hairline);vertical-align:middle;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right}
+  .pname{font-weight:600}
+  .nfl{color:var(--mute);font-size:12px}
+
+  /* charts */
+  .rowchart{display:flex;flex-direction:column;gap:9px}
+  .rrow{display:grid;grid-template-columns:112px 1fr 64px;align-items:center;gap:10px;font-size:13px}
+  .rrow .lab{display:flex;align-items:center;gap:7px;font-weight:600;justify-content:flex-end;text-align:right}
+  .rrow .lab i{width:9px;height:9px;border-radius:2px;flex:none}
+  .track{height:16px;background:var(--inset);border-radius:4px;position:relative}
+  .fill{position:absolute;inset:0 auto 0 0;border-radius:4px;background:var(--accent);min-width:2px}
+  .rrow .val{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--ink2)}
+
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .srow{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:10px;font-size:12.5px}
+  .srow .lab{font-weight:600;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sbar{display:flex;gap:2px;height:18px}
+  .seg{border-radius:3px;min-width:3px;cursor:default}
+  .seg:hover{filter:brightness(1.12)}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12px;color:var(--ink2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:9px;height:9px;border-radius:2px}
+
+  .hist{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:18px}
+  .hcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+  .hbar{width:100%;max-width:56px;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+  .hcol .c{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;color:var(--ink2)}
+  .hcol .b{font-size:10.5px;color:var(--mute);letter-spacing:.04em;white-space:nowrap}
+  .axisline{border-top:1px solid var(--line);margin-top:0}
+
+  /* big board */
+  .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .bcard{background:var(--surface2);border-radius:8px;padding:10px 12px;border-left:3px solid var(--accent)}
+  .bcard .rk{font-size:10px;font-weight:600;letter-spacing:.14em;color:var(--mute)}
+  .bcard .nm{font-weight:700;font-size:14px;line-height:1.25;margin:2px 0 1px}
+  .bcard .sub{font-size:11.5px;color:var(--mute)}
+  .bcard .pr{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;font-size:17px;color:var(--money);margin-top:4px}
+
+  /* franchise selector */
+  .fchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+  .fchip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:99px;
+    font:600 12.5px/1 Barlow,sans-serif;padding:8px 13px;cursor:pointer;white-space:nowrap}
+  .fchip:hover{color:var(--ink)}
+  .fchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  :root[data-theme="dark"] .fchip[aria-pressed="true"]{color:#0C1310}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fchip[aria-pressed="true"]{color:#0C1310}}
+
+  .fr-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px}
+  .fr-head .tname{font:700 24px/1.1 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.02em;text-wrap:balance}
+  .fr-head .hand{color:var(--mute);font-size:13px}
+  .fr-facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px;font-size:13px;color:var(--ink2)}
+  .fr-facts b{color:var(--ink)}
+  .meter{display:inline-flex;align-items:center;gap:8px}
+  .meter .mtrack{width:76px;height:7px;border-radius:99px;background:var(--inset);position:relative;overflow:hidden}
+  .meter .mfill{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:99px}
+  .caps{display:flex;flex-direction:column;gap:8px}
+  .caprow{display:grid;grid-template-columns:44px 1fr 44px;gap:10px;align-items:center;font-size:12.5px}
+  .caprow .cl{font-weight:600;display:flex;align-items:center;gap:6px}
+  .caprow .cl i{width:8px;height:8px;border-radius:2px}
+  .caprow .cv{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--ink2);text-align:right}
+  .group-h{font:600 11px/1 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.16em;color:var(--mute);
+    padding:12px 10px 6px;border-bottom:1px solid var(--line)}
+
+  /* auction board controls */
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .controls input[type="search"]{flex:1;min-width:170px;background:var(--surface);border:1px solid var(--line);
+    border-radius:8px;color:var(--ink);font:400 14px Barlow,sans-serif;padding:9px 12px}
+  .controls input::placeholder{color:var(--mute)}
+  .pfilter{display:flex;gap:6px;flex-wrap:wrap}
+  .pfbtn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:99px;
+    font:600 12px/1 Barlow,sans-serif;padding:7px 11px;cursor:pointer}
+  .pfbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .sortbtn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:8px;
+    font:600 12px/1 Barlow,sans-serif;padding:8px 11px;cursor:pointer}
+
+  /* wire */
+  .wireline{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--hairline);font-size:13.5px;flex-wrap:wrap}
+  .wireline:last-child{border-bottom:none}
+  .wireline .pr{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;color:var(--money);width:44px;flex:none;text-align:right}
+  .wireline .who{color:var(--ink2);font-size:12.5px}
+  .cut .pr{color:var(--danger)}
+
+  /* tooltip */
+  #tip{position:fixed;z-index:99;pointer-events:none;background:var(--tip-bg);color:var(--tip-ink);
+    font:500 12px/1.4 Barlow,sans-serif;padding:7px 10px;border-radius:6px;box-shadow:var(--shadow);
+    opacity:0;transform:translateY(3px);max-width:240px}
+  #tip b{font-weight:700}
+  #tip .m{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  @media (prefers-reduced-motion: no-preference){
+    #tip{transition:opacity .12s ease,transform .12s ease}
+    .fill,.seg,.hbar{transition:filter .12s ease}
+  }
+  footer{max-width:1080px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--mute);line-height:1.6}
+  @media (max-width:560px){
+    .rrow{grid-template-columns:96px 1fr 52px}
+    .srow{grid-template-columns:82px 1fr}
+  }
+  .txlist{display:flex;flex-direction:column;gap:10px}
+  .txcard{background:var(--inset);border:1px solid var(--hairline);border-radius:9px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+  .txdate{font:600 10px/1 Oswald,"Arial Narrow",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+  .txside{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .txteam{font:600 11px/1.6 Oswald,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-ink);flex:none;width:150px}
+  @media (max-width:560px){.txteam{width:100%}}
+  .txassets{display:flex;flex-wrap:wrap;gap:5px 14px}
+  .txasset{display:inline-flex;gap:5px;align-items:center;font-size:13px}
+  .txasset .nm{font-weight:600}
+  .txasset .sv{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--mute)}
+</style>
+
+<style>
+  .h3sub{font-weight:400;letter-spacing:0;text-transform:none;color:var(--mute);font-size:11.5px}
+  .tgrid{display:grid;grid-template-columns:1fr 34px 1fr;gap:10px;align-items:start}
+  .tswap{display:flex;align-items:center;justify-content:center;padding-top:52px}
+  .tgrid>*{min-width:0}
+  @media (max-width:700px){.tgrid{grid-template-columns:1fr}.tswap{display:none}}
+  .tside{background:var(--inset);border:1px solid var(--hairline);border-radius:10px;padding:12px}
+  .tsel{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);
+    font:600 13.5px Barlow,sans-serif;padding:9px 10px;margin-bottom:9px}
+  select.tsel{appearance:auto}
+  .tsearch{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);
+    font:400 13px Barlow,sans-serif;padding:8px 10px}
+  .tsearch::placeholder{color:var(--mute)}
+  .tsug{display:flex;flex-direction:column;gap:2px;margin-top:6px;max-height:172px;overflow-y:auto}
+  .tsug button{appearance:none;border:none;background:none;color:var(--ink);text-align:left;font:500 13px Barlow,sans-serif;
+    padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;gap:8px;align-items:center}
+  .tsug button:hover{background:var(--surface2)}
+  .tsug button{min-width:0}
+  .tsug button>span:nth-child(2){flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+  .tsug .sv{margin-left:auto;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;color:var(--ink2)}
+  .tassets{display:flex;flex-direction:column;gap:6px;margin-top:10px;min-height:34px}
+  .tasset{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--hairline);
+    border-radius:8px;padding:7px 10px;font-size:13px}
+  .tasset .nm{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tasset .sv{flex:none}
+  .tasset .sv{margin-left:auto;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--money)}
+  .tasset .rm{appearance:none;border:none;background:none;color:var(--mute);font-size:15px;cursor:pointer;padding:0 0 0 4px;line-height:1}
+  .tasset .rm:hover{color:var(--danger)}
+  .tside .subtotal{margin-top:10px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;
+    font-size:12.5px;color:var(--ink2)}
+  .tside .subtotal b{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--ink)}
+
+  #verdict{margin-top:16px}
+  .vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}
+  .vbox{background:var(--inset);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--ink2)}
+  .vbox .big{font:600 17px/1.3 Oswald,"Arial Narrow",sans-serif;color:var(--ink);letter-spacing:.02em}
+  .vbox .pos-d{color:var(--accent-ink);font-weight:600}
+  .vbox .neg-d{color:var(--danger);font-weight:600}
+  .balance{height:14px;border-radius:99px;background:var(--inset);position:relative;overflow:hidden;margin-top:10px}
+  .balance .ba{position:absolute;inset:0 50% 0 0;background:var(--accent);border-right:2px solid var(--surface)}
+  .balance .bb{position:absolute;inset:0 0 0 50%;background:var(--mute);border-left:0}
+  .balance-cap{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute);margin-top:5px}
+  .vhead{font:600 15px/1.35 Barlow,sans-serif}
+  .vhead .fair{color:var(--accent-ink)} .vhead .edge{color:var(--money)} .vhead .lop{color:var(--danger)}
+
+  .flab{font:600 11px/1 Oswald,"Arial Narrow",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+  #fx-me,#fx-them{width:auto;min-width:150px;margin-bottom:0}
+  .fx-out{display:flex;flex-direction:column;gap:8px}
+  .fx-empty{color:var(--mute);font-size:13px;padding:6px 2px}
+  .fxrow{appearance:none;text-align:left;font:inherit;color:var(--ink);width:100%;background:var(--inset);
+    border:1px solid var(--hairline);border-radius:9px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+  .fxrow:hover{border-color:var(--accent)}
+  .fxline{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13px}
+  .fxline .dir{font:600 10px/1 Oswald,"Arial Narrow",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);width:48px;flex:none}
+  .fxline .nm{font-weight:600}
+  .fxline .sv{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;color:var(--ink2)}
+  .fxmeta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--mute)}
+  .fxmeta .pos-d{color:var(--accent-ink);font-weight:600}
+  .fxmeta .neg-d{color:var(--danger);font-weight:600}
+
+  #vboard td:first-child{color:var(--mute);font-size:11.5px}
+  .pkchip{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border-radius:6px;
+    padding:3px 7px;font-size:11.5px;color:var(--ink2);margin:0 5px 5px 0}
+  .pkchip b{color:var(--ink);font-weight:600}
+  .pkchip .sv{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;color:var(--money)}
+</style>
+
+<header>
+  <div class="hd-top">
+    <div class="wordmark"><small>Front Office</small>🏈 Dynasty Yr 1</div>
+    <div class="hd-meta"><span id="age-stamp"></span>
+      <button id="refresh-btn" class="rbtn" title="Reload to the newest build of this dashboard">↻ Refresh</button></div>
+  </div>
+  <nav role="tablist" id="tabs">
+    <button class="tab" role="tab" data-t="war" aria-selected="true">War Room</button>
+    <button class="tab" role="tab" data-t="fr" aria-selected="false">Franchises</button>
+    <button class="tab" role="tab" data-t="trade" aria-selected="false">Trade Desk</button>
+    <button class="tab" role="tab" data-t="board" aria-selected="false">Auction Board</button>
+    <button class="tab" role="tab" data-t="wire" aria-selected="false">The Wire</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ================= WAR ROOM ================= -->
+  <section id="sec-war">
+    <div class="tiles" id="tiles"></div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h3>League Operations</h3>
+        <div id="ops-facts" style="display:flex;flex-direction:column;gap:7px;font-size:13.5px"></div>
+      </div>
+      <div class="card">
+        <h3>Auction Dollars by Position</h3>
+        <div class="rowchart" id="pos-chart"></div>
+        <div style="font-size:11.5px;color:var(--mute);margin-top:10px">League-wide share of the $5,000 spent across all ten budgets.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Top of the Board — Priciest Auction Wins</h3>
+      <div class="board" id="topboard"></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h3>Budget Composition by Franchise</h3>
+        <div class="stack" id="team-stack"></div>
+        <div class="legend" id="stack-legend"></div>
+      </div>
+      <div class="card">
+        <h3>Price Tiers — Where 250 Players Sold</h3>
+        <div class="hist" id="hist"></div>
+        <div class="axisline"></div>
+        <div style="font-size:11.5px;color:var(--mute);margin-top:8px">Winning bid per player. Nearly half the pool went for a single dollar.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FRANCHISES ================= -->
+  <section id="sec-fr" hidden>
+    <div class="fchips" id="fchips"></div>
+    <div class="card">
+      <div class="fr-head">
+        <span class="tname" id="fr-name"></span>
+        <span class="hand" id="fr-hand"></span>
+      </div>
+      <div class="fr-facts" id="fr-facts"></div>
+    </div>
+    <div class="grid g2">
+      <div class="card" style="grid-column:1/-1">
+        <h3>Depth Chart</h3>
+        <div class="twrap"><table id="fr-roster"></table></div>
+      </div>
+      <div class="card">
+        <h3>Roster Mix <span style="font-weight:400;letter-spacing:0;text-transform:none;color:var(--mute)">vs. auction caps — trades can exceed them</span></h3>
+        <div class="caps" id="fr-caps"></div>
+      </div>
+      <div class="card">
+        <h3>Auction Spend Profile</h3>
+        <div class="stack" id="fr-spend"></div>
+        <div id="fr-spend-note" style="font-size:12px;color:var(--ink2);margin-top:10px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TRADE DESK ================= -->
+  <section id="sec-trade" hidden>
+    <div class="card">
+      <h3>Trade Analyzer <span class="h3sub">dynasty ledger + win-now lineup lens</span></h3>
+      <div class="tgrid">
+        <div class="tside" id="side-A"></div>
+        <div class="tswap"><button class="sortbtn" id="t-swap" title="Swap sides">⇄</button></div>
+        <div class="tside" id="side-B"></div>
+      </div>
+      <div id="verdict"></div>
+    </div>
+
+    <div class="card">
+      <h3>Trade Finder <span class="h3sub">scans every roster for deals that help both sides</span></h3>
+      <div class="controls" style="margin-bottom:12px">
+        <label class="flab">Find trades for</label>
+        <select class="tsel" id="fx-me"></select>
+        <label class="flab">with</label>
+        <select class="tsel" id="fx-them"><option value="0">any franchise</option></select>
+        <button class="sortbtn" id="fx-go" style="background:var(--accent);color:#fff;border-color:var(--accent)">Scan league</button>
+      </div>
+      <div id="fx-out" class="fx-out"><div class="fx-empty">Pick your franchise and hit <b>Scan league</b>. Suggestions balance the dynasty ledger while improving your starting lineup — tap one to load it in the analyzer.</div></div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h3>League Value Board <span class="h3sub">roster + draft capital, market dollars</span></h3>
+        <div class="twrap"><table id="vboard"></table></div>
+      </div>
+      <div class="card">
+        <h3>Waiver Watch <span class="h3sub">best unrostered values right now</span></h3>
+        <div class="twrap"><table id="wwatch"></table></div>
+        <h3 style="margin-top:18px">Market Movers <span class="h3sub">30-day trend, rostered players</span></h3>
+        <div class="twrap"><table id="movers"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AUCTION BOARD ================= -->
+  <section id="sec-board" hidden>
+    <div class="controls">
+      <input type="search" id="q" placeholder="Search player or manager…" aria-label="Search players">
+      <div class="pfilter" id="pf"></div>
+      <button class="sortbtn" id="sort">Sort: Price ▾</button>
+    </div>
+    <div class="card" style="padding:6px 8px">
+      <div class="twrap"><table id="btable"></table></div>
+    </div>
+  </section>
+
+  <!-- ================= WIRE ================= -->
+  <section id="sec-wire" hidden>
+    <div class="sec-head"><h2>The Transaction Wire</h2>
+      <span class="note" id="wire-note">Sleeper transaction log</span></div>
+    <div class="card">
+      <h3 id="wire-trades-h">Trades</h3>
+      <div id="wire-trades" class="txlist"></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3 id="wire-claims-h">Waiver Claims <span class="h3sub">FAAB bids — failed claims included</span></h3>
+        <div id="wire-claims"></div>
+      </div>
+      <div class="card">
+        <h3 id="wire-fa-h">Free Agency</h3>
+        <div id="wire-fa"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Built from the Sleeper public API · league 1354143142760169472 · auction completed <span id="ft-draft"></span>.
+  Trade values: FantasyCalc dynasty market (1QB · full PPR · 10-team, computed from real league trades) with a DynastyProcess consensus overlay, as of Aug 28, 2026. Rookie-pick prices from the same market.
+  This board is a snapshot — trades vs. waiver claims are inferred from roster diffs, not the transaction log.
+</footer>
+
+<div id="tip" role="presentation"></div>
+
+<script id="ff-data" type="application/json">{"meta":{"name":"Dynasty Yr 1","season":"2026","snapshot":"2026-08-28 18:38 UTC","valuesAsOf":"2026-08-28","budget":500,"faab":50,"nTeams":10,"playoffTeams":8,"playoffStart":15,"deadline":12,"taxi":3,"ir":3,"caps":{"QB":3,"RB":8,"WR":8,"TE":5,"K":3},"lineup":["QB","RB","RB","WR","WR","TE","FLEX","FLEX","K"],"benchSlots":13,"scoring":"Full PPR \u00b7 4-pt pass TD","draftDate":"Aug 23, 2026"},"teams":[{"rid":1,"h":"danjoslin21","tn":"Pukachu","faab":0,"w":0,"l":0,"st":["11566","4866","7543","9493","8144","8130","12526","12506","8259"],"bn":["10232","12474","12490","12545","13294","13305","13320","13347","7553","7594","8126","9225","9504"],"tx":["13302","13311","13349"],"ir":["11589","11651","13353"]},{"rid":2,"h":"JulianKili","tn":"Super Chinese Team","faab":10,"w":0,"l":0,"st":["11564","9226","8151","5859","8112","12518","7525","11620","11539"],"bn":["11610","11637","11643","11646","12522","12533","3214","7611","8121","8172","8183","9500","9502"],"tx":["12495","13413","13421"],"ir":[]},{"rid":3,"h":"trevkniff22","tn":"Where My Njigbas At?","faab":0,"w":0,"l":0,"st":["12508","12481","12512","9488","5846","11604","12489","5045","11786"],"bn":["11435","11627","11631","12471","12483","12493","12499","12521","12535","12536","9228","9482","9506"],"tx":["13272","13400","13403"],"ir":[]},{"rid":4,"h":"nacdaddy","tn":"Naccers","faab":0,"w":0,"l":0,"st":["11560","11584","9224","7564","7547","7002","10229","9754","11533"],"bn":["10213","11576","12467","12492","12524","13274","3163","5872","7021","7528","7600","8800","9480"],"tx":["11783","12457","13288"],"ir":["11638","12484"]},{"rid":5,"h":"D4rr1nL","tn":"Nabers in Paris","faab":0,"w":0,"l":0,"st":["4046","7588","12529","6786","8148","12517","10222","1466","7839"],"bn":["10219","11624","13346","2449","4033","421","4981","5967","6804","8110","8134","8154","8205"],"tx":["12469","12530","9511"],"ir":[]},{"rid":6,"h":"H1nks","tn":"Rachaad White Starter","faab":0,"w":0,"l":0,"st":["4881","9509","8155","6794","7569","10236","2133","5012","3451"],"bn":["2216","4037","4199","4892","5001","5844","6806","8132","8136","8142","8408","9508","9756"],"tx":["12498","13276","13533"],"ir":[]},{"rid":7,"h":"jharrigan15","tn":"Caucasian Beckham Jr ","faab":0,"w":0,"l":0,"st":["6904","9221","3198","7526","9997","8131","8150","12519","12711"],"bn":["11581","11583","11586","11603","13269","13279","13301","13330","2078","4035","5850","6770","9487"],"tx":["11575","12544","13303"],"ir":["13281"]},{"rid":8,"h":"Campito41","tn":"I Chase Brown Kids","faab":0,"w":0,"l":0,"st":["4984","13286","13287","5927","11628","10859","4983","12527","1945"],"bn":["11618","12487","13293","13298","13317","13337","13345","13402","13414","13417","5849","7567","8161"],"tx":["13296","13319","13423"],"ir":["9753"]},{"rid":9,"h":"Amanboii123","tn":"Lil osama ","faab":1,"w":0,"l":0,"st":["6797","12507","4034","11632","11635","4217","8138","8146","4227"],"bn":["11647","11655","11834","12502","12509","1479","3294","3321","5022","5947","6819","8228"],"tx":[],"ir":[]},{"rid":10,"h":"HendoJ1122","tn":"HendoJ1122","faab":0,"w":0,"l":0,"st":["7523","6813","5892","8137","6801","9484","8167","6790","11792"],"bn":["11563","12501","12514","12534","12540","13285","4137","8111","8180","8210","8676","8698"],"tx":["13275","13405"],"ir":[]}],"players":{"9501":{"n":"DeMario Douglas","p":"WR","t":"NE"},"4881":{"n":"Lamar Jackson","p":"QB","t":"BAL"},"2078":{"n":"Odell Beckham","p":"WR","t":"NYG"},"4217":{"n":"George Kittle","p":"TE","t":"SF"},"13420":{"n":"Bryce Lance","p":"WR","t":"NO"},"5995":{"n":"Justice Hill","p":"RB","t":"BAL"},"8142":{"n":"Alec Pierce","p":"WR","t":"IND"},"7594":{"n":"Chuba Hubbard","p":"RB","t":"CAR"},"13421":{"n":"Eli Raridon","p":"TE","t":"NE"},"11435":{"n":"Emanuel Wilson","p":"RB","t":"SEA"},"12547":{"n":"Kyle Williams","p":"WR","t":"NE"},"12670":{"n":"KeAndre Lambert-Smith","p":"WR","t":"LAC"},"7828":{"n":"Noah Gray","p":"TE","t":"KC"},"11624":{"n":"Xavier Worthy","p":"WR","t":"KC"},"9997":{"n":"Zay Flowers","p":"WR","t":"BAL"},"4098":{"n":"Kareem Hunt","p":"RB","t":"FA"},"6790":{"n":"D'Andre Swift","p":"RB","t":"CHI"},"11566":{"n":"Jayden Daniels","p":"QB","t":"WAS"},"13289":{"n":"Drew Allar","p":"QB","t":"PIT"},"8131":{"n":"Isaiah Likely","p":"TE","t":"NYG"},"13533":{"n":"Barion Brown","p":"WR","t":"NO"},"13380":{"n":"Brenen Thompson","p":"WR","t":"LAC"},"4227":{"n":"Harrison Butker","p":"K","t":"KC"},"3163":{"n":"Jared Goff","p":"QB","t":"DET"},"9488":{"n":"Jaxon Smith-Njigba","p":"WR","t":"SEA"},"13272":{"n":"Carson Beck","p":"QB","t":"ARI"},"4017":{"n":"Deshaun Watson","p":"QB","t":"CLE"},"5859":{"n":"A.J. Brown","p":"WR","t":"NE"},"7496":{"n":"Nick Westbrook-Ikhine","p":"WR","t":"IND"},"4033":{"n":"David Njoku","p":"TE","t":"LAC"},"7611":{"n":"Rhamondre Stevenson","p":"RB","t":"NE"},"12508":{"n":"Jaxson Dart","p":"QB","t":"NYG"},"13311":{"n":"Chris Bell","p":"WR","t":"MIA"},"9509":{"n":"Bijan Robinson","p":"RB","t":"ATL"},"9484":{"n":"Tucker Kraft","p":"TE","t":"GB"},"11834":{"n":"Devaughn Vele","p":"WR","t":"NO"},"13419":{"n":"Jaydn Ott","p":"RB","t":"KC"},"4892":{"n":"Baker Mayfield","p":"QB","t":"TB"},"11579":{"n":"Audric Estime","p":"RB","t":"NO"},"12514":{"n":"Emeka Egbuka","p":"WR","t":"TB"},"11589":{"n":"Trey Benson","p":"RB","t":"ARI"},"12498":{"n":"Mason Taylor","p":"TE","t":"NYJ"},"8138":{"n":"James Cook","p":"RB","t":"BUF"},"13269":{"n":"Fernando Mendoza","p":"QB","t":"LV"},"13298":{"n":"KC Concepcion","p":"WR","t":"CLE"},"12504":{"n":"Kaleb Johnson","p":"RB","t":"PIT"},"12505":{"n":"Jalen Royals","p":"WR","t":"KC"},"5022":{"n":"Dallas Goedert","p":"TE","t":"PHI"},"7839":{"n":"Evan McPherson","p":"K","t":"CIN"},"6826":{"n":"Cole Kmet","p":"TE","t":"CHI"},"13333":{"n":"Deion Burks","p":"WR","t":"IND"},"6806":{"n":"J.K. Dobbins","p":"RB","t":"DEN"},"13338":{"n":"Kevin Coleman","p":"WR","t":"MIA"},"5012":{"n":"Mark Andrews","p":"TE","t":"BAL"},"2306":{"n":"Jameis Winston","p":"QB","t":"NYG"},"12526":{"n":"Tetairoa McMillan","p":"WR","t":"CAR"},"11199":{"n":"Emari Demercado","p":"RB","t":"KC"},"12489":{"n":"RJ Harvey","p":"RB","t":"DEN"},"13400":{"n":"Justin Joly","p":"TE","t":"DEN"},"9506":{"n":"Sean Tucker","p":"RB","t":"TB"},"4866":{"n":"Saquon Barkley","p":"RB","t":"PHI"},"12511":{"n":"Will Howard","p":"QB","t":"PIT"},"7002":{"n":"Juwan Johnson","p":"TE","t":"NO"},"9757":{"n":"Kendre Miller","p":"RB","t":"NO"},"10222":{"n":"Jayden Reed","p":"WR","t":"GB"},"4039":{"n":"Cooper Kupp","p":"WR","t":"SEA"},"12536":{"n":"Jaylin Noel","p":"WR","t":"HOU"},"3257":{"n":"Jacoby Brissett","p":"QB","t":"ARI"},"11563":{"n":"Bo Nix","p":"QB","t":"DEN"},"13302":{"n":"Adam Randall","p":"RB","t":"BAL"},"13281":{"n":"Jordyn Tyson","p":"WR","t":"NO"},"13424":{"n":"Seth McGowan","p":"RB","t":"IND"},"13404":{"n":"Garrett Nussmeier","p":"QB","t":"KC"},"9511":{"n":"Keaton Mitchell","p":"RB","t":"LAC"},"12711":{"n":"Tyler Loop","p":"K","t":"BAL"},"13477":{"n":"Colbie Young","p":"WR","t":"CIN"},"11575":{"n":"Ray Davis","p":"RB","t":"BUF"},"12545":{"n":"Tyler Shough","p":"QB","t":"NO"},"5906":{"n":"Dawson Knox","p":"TE","t":"BUF"},"12523":{"n":"Jimmy Horn","p":"WR","t":"CAR"},"8136":{"n":"Rachaad White","p":"RB","t":"WAS"},"12455":{"n":"Brashard Smith","p":"RB","t":"KC"},"4179":{"n":"Joshua Dobbs","p":"QB","t":"DET"},"7569":{"n":"Nico Collins","p":"WR","t":"HOU"},"13319":{"n":"Oscar Delp","p":"TE","t":"NO"},"4018":{"n":"Joe Mixon","p":"RB","t":"FA"},"13337":{"n":"Emmett Johnson","p":"RB","t":"KC"},"9494":{"n":"Marvin Mims","p":"WR","t":"DEN"},"7553":{"n":"Kyle Pitts","p":"TE","t":"ATL"},"2307":{"n":"Marcus Mariota","p":"QB","t":"WAS"},"13303":{"n":"Cade Klubnik","p":"QB","t":"NYJ"},"11608":{"n":"Isaiah Williams","p":"WR","t":"NYJ"},"3214":{"n":"Hunter Henry","p":"TE","t":"NE"},"12530":{"n":"Travis Hunter","p":"WR","t":"JAX"},"10235":{"n":"Roschon Johnson","p":"RB","t":"CHI"},"5848":{"n":"Marquise Brown","p":"WR","t":"PHI"},"11583":{"n":"Jonathon Brooks","p":"RB","t":"CAR"},"9502":{"n":"Tank Dell","p":"WR","t":"HOU"},"9487":{"n":"Parker Washington","p":"WR","t":"JAX"},"13418":{"n":"Robert Henry","p":"RB","t":"WAS"},"13405":{"n":"Kaytron Allen","p":"RB","t":"WAS"},"11370":{"n":"Chris Brooks","p":"RB","t":"GB"},"4984":{"n":"Josh Allen","p":"QB","t":"BUF"},"8183":{"n":"Brock Purdy","p":"QB","t":"SF"},"6865":{"n":"Colby Parkinson","p":"TE","t":"LAR"},"12492":{"n":"Pat Bryant","p":"WR","t":"DEN"},"5967":{"n":"Tony Pollard","p":"RB","t":"TEN"},"12507":{"n":"Omarion Hampton","p":"RB","t":"LAC"},"6011":{"n":"Gardner Minshew","p":"QB","t":"ARI"},"8132":{"n":"Tyler Allgeier","p":"RB","t":"ARI"},"4035":{"n":"Alvin Kamara","p":"RB","t":"NO"},"8408":{"n":"Jordan Mason","p":"RB","t":"MIN"},"7567":{"n":"Kenny Gainwell","p":"RB","t":"TB"},"7526":{"n":"Jaylen Waddle","p":"WR","t":"DEN"},"12490":{"n":"Bhayshul Tuten","p":"RB","t":"JAX"},"11571":{"n":"Isaiah Davis","p":"RB","t":"NYJ"},"5870":{"n":"Daniel Jones","p":"QB","t":"IND"},"7571":{"n":"Rashod Bateman","p":"WR","t":"BAL"},"6813":{"n":"Jonathan Taylor","p":"RB","t":"IND"},"11569":{"n":"Jarquez Hunter","p":"RB","t":"MIA"},"10229":{"n":"Rashee Rice","p":"WR","t":"KC"},"12534":{"n":"Kyle Monangai","p":"RB","t":"CHI"},"9228":{"n":"Bryce Young","p":"QB","t":"CAR"},"8144":{"n":"Chris Olave","p":"WR","t":"NO"},"8154":{"n":"Brian Robinson","p":"RB","t":"ATL"},"4988":{"n":"Nick Chubb","p":"RB","t":"FA"},"13335":{"n":"Cole Payton","p":"QB","t":"PHI"},"12048":{"n":"George Holani","p":"RB","t":"SEA"},"8172":{"n":"Greg Dulcich","p":"TE","t":"MIA"},"7543":{"n":"Travis Etienne","p":"RB","t":"NO"},"5001":{"n":"Dalton Schultz","p":"TE","t":"HOU"},"13434":{"n":"Will Kacmarek","p":"TE","t":"MIA"},"12531":{"n":"Trevor Etienne","p":"RB","t":"CAR"},"11576":{"n":"Braelon Allen","p":"RB","t":"NYJ"},"5045":{"n":"Courtland Sutton","p":"WR","t":"DEN"},"12540":{"n":"Chimere Dike","p":"WR","t":"TEN"},"3294":{"n":"Dak Prescott","p":"QB","t":"DAL"},"11586":{"n":"Blake Corum","p":"RB","t":"LAR"},"12502":{"n":"Gunnar Helm","p":"TE","t":"TEN"},"8155":{"n":"Breece Hall","p":"RB","t":"NYJ"},"12738":{"n":"Phil Mafah","p":"RB","t":"DAL"},"13401":{"n":"Michael Trigg","p":"TE","t":"DAL"},"13296":{"n":"Caleb Douglas","p":"WR","t":"MIA"},"8127":{"n":"Charlie Kolar","p":"TE","t":"LAC"},"13315":{"n":"Dean Connors","p":"RB","t":"LAR"},"8148":{"n":"Jameson Williams","p":"WR","t":"DET"},"11557":{"n":"Joe Milton","p":"QB","t":"DAL"},"11647":{"n":"Kimani Vidal","p":"RB","t":"LAC"},"11603":{"n":"AJ Barner","p":"TE","t":"SEA"},"12499":{"n":"Elic Ayomanor","p":"WR","t":"TEN"},"12471":{"n":"DJ Giddens","p":"RB","t":"IND"},"5927":{"n":"Terry McLaurin","p":"WR","t":"WAS"},"13322":{"n":"Sam Roush","p":"TE","t":"CHI"},"6149":{"n":"Darius Slayton","p":"WR","t":"NYG"},"421":{"n":"Matthew Stafford","p":"QB","t":"LAR"},"11643":{"n":"Jaylen Wright","p":"RB","t":"MIA"},"7891":{"n":"Brock Wright","p":"TE","t":"DET"},"11786":{"n":"Cam Little","p":"K","t":"JAX"},"12509":{"n":"Tre' Harris","p":"WR","t":"LAC"},"11256":{"n":"Tyson Bagent","p":"QB","t":"CHI"},"13288":{"n":"Nicholas Singleton","p":"RB","t":"TEN"},"11638":{"n":"Ricky Pearsall","p":"WR","t":"SF"},"6786":{"n":"CeeDee Lamb","p":"WR","t":"DAL"},"7601":{"n":"Rondale Moore","p":"WR","t":"FA"},"13274":{"n":"Germie Bernard","p":"WR","t":"PIT"},"13314":{"n":"Luke Altmyer","p":"QB","t":"DET"},"12457":{"n":"Jaydon Blue","p":"RB","t":"DAL"},"13349":{"n":"Eli Stowers","p":"TE","t":"PHI"},"11792":{"n":"Will Reichard","p":"K","t":"MIN"},"13411":{"n":"Zavion Thomas","p":"WR","t":"CHI"},"11597":{"n":"Theo Johnson","p":"TE","t":"NYG"},"12493":{"n":"Oronde Gadsden","p":"TE","t":"LAC"},"13308":{"n":"Bauer Sharp","p":"TE","t":"TB"},"7021":{"n":"Rico Dowdle","p":"RB","t":"PIT"},"9479":{"n":"Darnell Washington","p":"TE","t":"PIT"},"9493":{"n":"Puka Nacua","p":"WR","t":"LAR"},"12500":{"n":"Quinn Ewers","p":"QB","t":"MIA"},"12535":{"n":"Isaac TeSlaa","p":"WR","t":"DET"},"9225":{"n":"Tank Bigsby","p":"RB","t":"PHI"},"10219":{"n":"Chris Rodriguez","p":"RB","t":"JAX"},"12497":{"n":"Tory Horton","p":"WR","t":"SEA"},"7083":{"n":"Tyler Huntley","p":"QB","t":"BAL"},"4177":{"n":"Mack Hollins","p":"WR","t":"NE"},"11533":{"n":"Brandon Aubrey","p":"K","t":"DAL"},"13414":{"n":"Kaelon Black","p":"RB","t":"SF"},"6797":{"n":"Justin Herbert","p":"QB","t":"LAC"},"8188":{"n":"Tyquan Thornton","p":"WR","t":"KC"},"13417":{"n":"De'Zhaun Stribling","p":"WR","t":"SF"},"11539":{"n":"Jake Bates","p":"K","t":"DET"},"8119":{"n":"Jahan Dotson","p":"WR","t":"ATL"},"96":{"n":"Aaron Rodgers","p":"QB","t":"PIT"},"5844":{"n":"T.J. Hockenson","p":"TE","t":"MIN"},"8210":{"n":"Chig Okonkwo","p":"TE","t":"WAS"},"11560":{"n":"Caleb Williams","p":"QB","t":"CHI"},"1339":{"n":"Zach Ertz","p":"TE","t":"FA"},"7564":{"n":"Ja'Marr Chase","p":"WR","t":"CIN"},"12015":{"n":"Harrison Mevis","p":"K","t":"LAR"},"10218":{"n":"Xavier Hutchinson","p":"WR","t":"HOU"},"6794":{"n":"Justin Jefferson","p":"WR","t":"MIN"},"13293":{"n":"Ja'Kobi Lane","p":"WR","t":"BAL"},"13413":{"n":"Cyrus Allen","p":"WR","t":"KC"},"4144":{"n":"Jonnu Smith","p":"TE","t":"GB"},"12518":{"n":"Tyler Warren","p":"TE","t":"IND"},"13423":{"n":"Eli Heidenreich","p":"RB","t":"PIT"},"13329":{"n":"Malik Benson","p":"WR","t":"LV"},"10859":{"n":"Sam LaPorta","p":"TE","t":"DET"},"12469":{"n":"Dylan Sampson","p":"RB","t":"CLE"},"6904":{"n":"Jalen Hurts","p":"QB","t":"PHI"},"8130":{"n":"Trey McBride","p":"TE","t":"ARI"},"11631":{"n":"Brian Thomas","p":"WR","t":"JAX"},"8111":{"n":"Cade Otton","p":"TE","t":"TB"},"11592":{"n":"Erick All","p":"TE","t":"CIN"},"11623":{"n":"Jordan Whittington","p":"WR","t":"LAR"},"7591":{"n":"Justin Fields","p":"QB","t":"KC"},"6271":{"n":"Olamide Zaccheaus","p":"WR","t":"ATL"},"12481":{"n":"Cam Skattebo","p":"RB","t":"NYG"},"12467":{"n":"Jordan James","p":"RB","t":"SF"},"5846":{"n":"DK Metcalf","p":"WR","t":"PIT"},"7090":{"n":"Darnell Mooney","p":"WR","t":"NYG"},"13330":{"n":"Kenyon Sadiq","p":"TE","t":"NYJ"},"5850":{"n":"Josh Jacobs","p":"RB","t":"GB"},"13602":{"n":"Jack Strand","p":"QB","t":"ATL"},"11600":{"n":"Ja'Tavion Sanders","p":"TE","t":"CAR"},"5947":{"n":"Jakobi Meyers","p":"WR","t":"JAX"},"10213":{"n":"Tre Tucker","p":"WR","t":"LV"},"12524":{"n":"Shedeur Sanders","p":"QB","t":"CLE"},"3451":{"n":"Ka'imi Fairbairn","p":"K","t":"HOU"},"12542":{"n":"Efton Chism","p":"WR","t":"NE"},"2216":{"n":"Mike Evans","p":"WR","t":"SF"},"6130":{"n":"Devin Singletary","p":"RB","t":"NYG"},"12503":{"n":"Isaiah Bond","p":"WR","t":"CLE"},"11630":{"n":"Roman Wilson","p":"WR","t":"PIT"},"13270":{"n":"CJ Daniels","p":"WR","t":"LAR"},"9229":{"n":"Anthony Richardson","p":"QB","t":"IND"},"13402":{"n":"Skyler Bell","p":"WR","t":"BUF"},"11584":{"n":"Bucky Irving","p":"RB","t":"TB"},"12533":{"n":"Jacory Croskey-Merritt","p":"RB","t":"WAS"},"12521":{"n":"Elijah Arroyo","p":"TE","t":"SEA"},"13268":{"n":"Elijah Sarratt","p":"WR","t":"BAL"},"13305":{"n":"Mike Washington","p":"RB","t":"LV"},"6804":{"n":"Jordan Love","p":"QB","t":"GB"},"9500":{"n":"Josh Downs","p":"WR","t":"IND"},"9486":{"n":"Dontayvion Wicks","p":"WR","t":"PHI"},"8151":{"n":"Kenneth Walker","p":"RB","t":"KC"},"5892":{"n":"David Montgomery","p":"RB","t":"HOU"},"12476":{"n":"Devin Neal","p":"RB","t":"NO"},"4034":{"n":"Christian McCaffrey","p":"RB","t":"SF"},"2449":{"n":"Stefon Diggs","p":"WR","t":"WAS"},"12641":{"n":"Jaylin Lane","p":"WR","t":"WAS"},"11625":{"n":"Adonai Mitchell","p":"WR","t":"NYJ"},"10444":{"n":"Cedric Tillman","p":"WR","t":"FA"},"1373":{"n":"Geno Smith","p":"QB","t":"NYJ"},"13317":{"n":"Ted Hurst","p":"WR","t":"TB"},"13392":{"n":"Jeff Caldwell","p":"WR","t":"KC"},"4943":{"n":"Sam Darnold","p":"QB","t":"SEA"},"8147":{"n":"John Metchie","p":"WR","t":"CAR"},"8676":{"n":"Rashid Shaheed","p":"WR","t":"SEA"},"8161":{"n":"Malik Willis","p":"QB","t":"MIA"},"13415":{"n":"Haynes King","p":"QB","t":"CAR"},"12506":{"n":"Harold Fannin","p":"TE","t":"CLE"},"9226":{"n":"De'Von Achane","p":"RB","t":"MIA"},"13279":{"n":"Carnell Tate","p":"WR","t":"TEN"},"11650":{"n":"Luke McCaffrey","p":"WR","t":"WAS"},"12512":{"n":"Quinshon Judkins","p":"RB","t":"CLE"},"11627":{"n":"Troy Franklin","p":"WR","t":"DEN"},"12519":{"n":"Luther Burden","p":"WR","t":"CHI"},"3321":{"n":"Tyreek Hill","p":"WR","t":"FA"},"13403":{"n":"Jam Miller","p":"RB","t":"NE"},"13294":{"n":"Makai Lemon","p":"WR","t":"PHI"},"9504":{"n":"Kayshon Boutte","p":"WR","t":"HOU"},"8228":{"n":"Jaylen Warren","p":"RB","t":"PIT"},"9482":{"n":"Michael Mayer","p":"TE","t":"LV"},"12522":{"n":"Cam Ward","p":"QB","t":"TEN"},"7049":{"n":"Jauan Jennings","p":"WR","t":"MIN"},"12541":{"n":"Dont'e Thornton","p":"WR","t":"LV"},"10857":{"n":"Stetson Bennett","p":"QB","t":"LAR"},"2133":{"n":"Davante Adams","p":"WR","t":"LAR"},"7528":{"n":"Najee Harris","p":"RB","t":"NYG"},"13726":{"n":"Camden Brown","p":"WR","t":"DAL"},"12495":{"n":"Ollie Gordon","p":"RB","t":"MIA"},"8917":{"n":"KaVontae Turpin","p":"WR","t":"DAL"},"13276":{"n":"Omar Cooper","p":"WR","t":"NYJ"},"4199":{"n":"Aaron Jones","p":"RB","t":"MIN"},"13347":{"n":"Demond Claiborne","p":"RB","t":"MIN"},"7547":{"n":"Amon-Ra St. Brown","p":"WR","t":"DET"},"6783":{"n":"Jerry Jeudy","p":"WR","t":"CLE"},"4066":{"n":"Evan Engram","p":"TE","t":"DEN"},"13278":{"n":"Max Klare","p":"TE","t":"LAR"},"8117":{"n":"Jalen Tolbert","p":"WR","t":"MIA"},"13408":{"n":"Tanner Koziol","p":"TE","t":"JAX"},"1466":{"n":"Travis Kelce","p":"TE","t":"KC"},"1479":{"n":"Keenan Allen","p":"WR","t":"IND"},"4981":{"n":"Calvin Ridley","p":"WR","t":"TEN"},"9754":{"n":"Quentin Johnston","p":"WR","t":"LAC"},"13282":{"n":"Jack Endries","p":"TE","t":"CIN"},"12474":{"n":"Woody Marks","p":"RB","t":"HOU"},"11626":{"n":"Xavier Legette","p":"WR","t":"CAR"},"12485":{"n":"Tez Johnson","p":"WR","t":"TB"},"13286":{"n":"Jadarian Price","p":"RB","t":"SEA"},"11565":{"n":"J.J. McCarthy","p":"QB","t":"MIN"},"6803":{"n":"Brandon Aiyuk","p":"WR","t":"SF"},"8800":{"n":"Malik Davis","p":"RB","t":"DAL"},"13307":{"n":"Marlin Klein","p":"TE","t":"HOU"},"8112":{"n":"Drake London","p":"WR","t":"ATL"},"4046":{"n":"Patrick Mahomes","p":"QB","t":"KC"},"7525":{"n":"DeVonta Smith","p":"WR","t":"PHI"},"8205":{"n":"Isiah Pacheco","p":"RB","t":"DET"},"827":{"n":"Tyrod Taylor","p":"QB","t":"GB"},"11783":{"n":"Ryan Flournoy","p":"WR","t":"DAL"},"11618":{"n":"Jalen McMillan","p":"WR","t":"TB"},"13275":{"n":"Ty Simpson","p":"QB","t":"LAR"},"11620":{"n":"Rome Odunze","p":"WR","t":"CHI"},"12482":{"n":"Savion Williams","p":"WR","t":"GB"},"11577":{"n":"Will Shipley","p":"RB","t":"PHI"},"9481":{"n":"Luke Musgrave","p":"TE","t":"GB"},"8259":{"n":"Cameron Dicker","p":"K","t":"LAC"},"13348":{"n":"J'Mari Taylor","p":"RB","t":"JAX"},"6768":{"n":"Tua Tagovailoa","p":"QB","t":"ATL"},"9756":{"n":"Jordan Addison","p":"WR","t":"MIN"},"8135":{"n":"Treylon Burks","p":"WR","t":"WAS"},"6819":{"n":"Michael Pittman","p":"WR","t":"PIT"},"5857":{"n":"Noah Fant","p":"TE","t":"NO"},"9508":{"n":"Tyjae Spears","p":"RB","t":"TEN"},"11581":{"n":"MarShawn Lloyd","p":"RB","t":"GB"},"4663":{"n":"Austin Ekeler","p":"RB","t":"FA"},"12527":{"n":"Ashton Jeanty","p":"RB","t":"LV"},"8121":{"n":"Romeo Doubs","p":"WR","t":"NE"},"5849":{"n":"Kyler Murray","p":"QB","t":"MIN"},"8126":{"n":"Wan'Dale Robinson","p":"WR","t":"TEN"},"11646":{"n":"Jalen Coker","p":"WR","t":"CAR"},"10226":{"n":"Andrei Iosivas","p":"WR","t":"CIN"},"7588":{"n":"Javonte Williams","p":"RB","t":"DAL"},"11610":{"n":"Malik Washington","p":"WR","t":"MIA"},"11564":{"n":"Drake Maye","p":"QB","t":"NE"},"9221":{"n":"Jahmyr Gibbs","p":"RB","t":"DET"},"8225":{"n":"Daniel Bellinger","p":"TE","t":"TEN"},"6770":{"n":"Joe Burrow","p":"QB","t":"CIN"},"12470":{"n":"Riley Leonard","p":"QB","t":"IND"},"12517":{"n":"Colston Loveland","p":"TE","t":"CHI"},"11559":{"n":"Michael Penix","p":"QB","t":"ATL"},"8143":{"n":"Jerome Ford","p":"RB","t":"WAS"},"4972":{"n":"Mason Rudolph","p":"QB","t":"PIT"},"8150":{"n":"Kyren Williams","p":"RB","t":"LAR"},"11596":{"n":"Ben Sinnott","p":"TE","t":"WAS"},"11655":{"n":"Tyrone Tracy","p":"RB","t":"NYG"},"13346":{"n":"Denzel Boston","p":"WR","t":"CLE"},"1166":{"n":"Kirk Cousins","p":"QB","t":"LV"},"11635":{"n":"Ladd McConkey","p":"WR","t":"LAC"},"13353":{"n":"Chris Brazzell","p":"WR","t":"CAR"},"6039":{"n":"Ty Johnson","p":"RB","t":"BUF"},"12483":{"n":"Jack Bech","p":"WR","t":"LV"},"10236":{"n":"Dalton Kincaid","p":"TE","t":"BUF"},"12472":{"n":"Raheim Sanders","p":"RB","t":"CLE"},"8134":{"n":"Khalil Shakir","p":"WR","t":"BUF"},"13287":{"n":"Jeremiyah Love","p":"RB","t":"ARI"},"13285":{"n":"Malachi Fields","p":"WR","t":"NYG"},"4147":{"n":"Samaje Perine","p":"RB","t":"CIN"},"13345":{"n":"Jonah Coleman","p":"RB","t":"DEN"},"19":{"n":"Joe Flacco","p":"QB","t":"CIN"},"1945":{"n":"Chris Boswell","p":"K","t":"PIT"},"11604":{"n":"Brock Bowers","p":"TE","t":"LV"},"12501":{"n":"Matthew Golden","p":"WR","t":"GB"},"13306":{"n":"Taylen Green","p":"QB","t":"CLE"},"9753":{"n":"Zach Charbonnet","p":"RB","t":"SEA"},"4950":{"n":"Christian Kirk","p":"WR","t":"SF"},"11628":{"n":"Marvin Harrison","p":"WR","t":"ARI"},"9999":{"n":"Will Levis","p":"QB","t":"TEN"},"3271":{"n":"Tyler Higbee","p":"TE","t":"LAR"},"5872":{"n":"Deebo Samuel","p":"WR","t":"SF"},"12484":{"n":"Jayden Higgins","p":"WR","t":"HOU"},"8167":{"n":"Christian Watson","p":"WR","t":"GB"},"12544":{"n":"LeQuint Allen","p":"RB","t":"JAX"},"8137":{"n":"George Pickens","p":"WR","t":"DAL"},"7527":{"n":"Mac Jones","p":"QB","t":"SF"},"7585":{"n":"Davis Mills","p":"QB","t":"HOU"},"4137":{"n":"James Conner","p":"RB","t":"ARI"},"13301":{"n":"Antonio Williams","p":"WR","t":"WAS"},"8160":{"n":"Kenny Pickett","p":"QB","t":"CAR"},"13324":{"n":"Matt Hibner","p":"TE","t":"BAL"},"4993":{"n":"Mike Gesicki","p":"TE","t":"CIN"},"9224":{"n":"Chase Brown","p":"RB","t":"CIN"},"9758":{"n":"C.J. Stroud","p":"QB","t":"HOU"},"11637":{"n":"Keon Coleman","p":"WR","t":"BUF"},"9480":{"n":"Brenton Strange","p":"TE","t":"JAX"},"11562":{"n":"Spencer Rattler","p":"QB","t":"NO"},"2505":{"n":"Darren Waller","p":"TE","t":"CAR"},"4037":{"n":"Chris Godwin","p":"WR","t":"TB"},"7600":{"n":"Pat Freiermuth","p":"TE","t":"PIT"},"7523":{"n":"Trevor Lawrence","p":"QB","t":"JAX"},"12510":{"n":"Jalen Milroe","p":"QB","t":"SEA"},"8146":{"n":"Garrett Wilson","p":"WR","t":"NYJ"},"11651":{"n":"Isaac Guerendo","p":"RB","t":"SF"},"13394":{"n":"Josh Cameron","p":"WR","t":"JAX"},"3198":{"n":"Derrick Henry","p":"RB","t":"BAL"},"4983":{"n":"DJ Moore","p":"WR","t":"BUF"},"12487":{"n":"Terrance Ferguson","p":"TE","t":"LAR"},"11632":{"n":"Malik Nabers","p":"WR","t":"NYG"},"7610":{"n":"Trey Lance","p":"QB","t":"LAC"},"8698":{"n":"Jake Tonges","p":"TE","t":"SF"},"2747":{"n":"Jason Myers","p":"K","t":"SEA"},"10232":{"n":"Michael Wilson","p":"WR","t":"ARI"},"6801":{"n":"Tee Higgins","p":"WR","t":"CIN"},"12529":{"n":"TreVeyon Henderson","p":"RB","t":"NE"},"8110":{"n":"Jake Ferguson","p":"TE","t":"DAL"},"7562":{"n":"Tutu Atwell","p":"WR","t":"LAR"},"8180":{"n":"Jalen Nailor","p":"WR","t":"LV"},"13320":{"n":"Zachariah Branch","p":"WR","t":"ATL"},"12543":{"n":"Tahj Brooks","p":"RB","t":"CIN"},"12486":{"n":"Dillon Gabriel","p":"QB","t":"CLE"},"4454":{"n":"Kendrick Bourne","p":"WR","t":"ARI"}},"picks":[["9493",140,1,1],["4984",81,8,2],["6786",123,5,3],["9509",202,9,4],["11632",77,2,5],["6794",125,6,6],["7564",172,4,7],["8112",61,9,8],["9488",152,3,9],["12527",73,8,10],["9221",203,6,11],["3198",40,9,12],["11566",26,5,13],["13287",185,8,14],["11604",87,3,15],["12507",137,7,16],["9484",27,10,17],["7547",150,4,18],["9226",164,2,19],["12526",80,5,20],["6813",137,10,21],["5859",69,8,22],["12517",71,5,23],["8138",121,7,24],["4034",93,9,25],["4866",103,1,26],["8137",87,10,27],["8130",76,1,28],["7569",62,6,29],["12519",28,8,30],["11635",78,1,31],["6904",25,4,32],["7588",71,5,33],["8151",110,2,34],["2133",21,6,35],["12514",80,10,36],["11560",32,10,37],["9224",123,3,38],["12518",44,2,39],["12481",42,4,40],["4881",30,6,41],["12508",30,3,42],["12529",45,5,43],["11564",33,2,44],["5846",11,9,45],["8144",38,9,46],["6790",36,10,47],["8146",46,7,48],["8155",31,2,49],["13281",9,7,50],["10229",47,4,51],["12512",44,3,52],["6770",14,7,53],["5850",41,7,54],["4046",14,1,55],["7525",31,3,56],["6801",37,10,57],["8150",46,7,58],["11584",38,4,59],["7543",31,1,60],["5892",27,10,61],["13320",1,1,62],["7839",1,5,63],["13279",17,8,64],["9997",26,7,65],["12506",9,1,66],["12540",1,10,67],["10859",15,8,68],["13286",24,6,69],["13294",6,5,70],["11620",20,9,71],["13305",3,1,72],["8148",20,5,73],["11631",7,3,74],["12534",5,10,75],["11563",5,7,76],["7526",18,7,77],["7553",10,1,78],["13298",5,6,79],["9487",12,7,80],["4217",11,9,81],["13301",2,7,82],["13330",7,7,83],["6797",9,5,84],["7523",4,10,85],["9480",2,4,86],["8167",5,10,87],["11628",11,2,88],["10236",3,6,89],["13269",2,7,90],["12490",9,1,91],["10232",9,1,92],["8183",1,5,93],["12489",9,3,94],["2216",5,8,95],["8408",3,6,96],["8131",6,10,97],["4983",5,8,98],["9756",1,6,99],["8228",3,7,100],["13417",2,8,101],["7594",4,2,102],["8110",1,5,103],["5927",10,2,104],["3294",3,9,105],["9753",1,7,106],["7021",4,4,107],["12493",1,3,108],["8142",1,6,109],["11583",3,8,110],["5967",1,2,111],["12533",3,5,112],["1466",3,5,113],["5045",3,4,114],["12501",4,10,115],["8126",2,1,116],["11586",2,7,117],["11533",2,4,118],["13276",1,6,119],["12487",1,8,120],["7611",1,2,121],["13349",2,5,122],["13346",1,5,123],["9754",1,4,124],["6819",1,9,125],["11603",1,7,126],["11589",2,10,127],["11786",1,3,128],["6806",1,6,129],["7567",1,8,130],["9500",1,2,131],["12474",1,1,132],["12530",1,5,133],["13288",1,4,134],["11624",1,9,135],["8259",2,1,136],["13285",1,10,137],["5947",3,9,138],["8132",1,6,139],["13413",1,8,140],["11539",1,2,141],["12545",1,1,142],["13345",2,8,143],["11576",1,4,144],["421",4,9,145],["3451",2,6,146],["11792",1,10,147],["8136",3,6,148],["4892",1,6,149],["5849",1,8,150],["12522",1,2,151],["11646",1,1,152],["13337",2,8,153],["3163",1,4,154],["11655",1,9,155],["2747",1,7,156],["13405",1,10,157],["12484",1,3,158],["5012",1,6,159],["13414",1,8,160],["4037",5,6,161],["9225",1,1,162],["4199",2,6,163],["7528",1,4,164],["5022",1,9,165],["8676",1,7,166],["8210",1,10,167],["2449",2,1,168],["9508",1,6,169],["10222",2,1,170],["3214",1,2,171],["6804",1,1,172],["12469",1,5,173],["7002",1,4,174],["12509",1,9,175],["13293",1,7,176],["8134",1,10,177],["12499",1,3,178],["5844",1,6,179],["13296",1,8,180],["9502",1,2,181],["8121",1,1,182],["10219",1,5,183],["11618",2,8,184],["9511",2,5,185],["4033",2,5,186],["8180",2,5,187],["9504",2,5,188],["12498",1,6,189],["13317",1,8,190],["11610",1,2,191],["8154",22,5,192],["8205",1,5,193],["5872",1,4,194],["11643",1,9,195],["4035",1,7,196],["8698",1,7,197],["11627",1,3,198],["5001",1,6,199],["8161",1,8,200],["13421",1,2,201],["2078",1,10,202],["11638",1,4,203],["11647",1,9,204],["4981",1,10,205],["12535",1,3,206],["9758",1,6,207],["13319",1,8,208],["11637",1,2,209],["12504",1,3,210],["12457",1,4,211],["11581",1,9,212],["13423",1,8,213],["4943",1,2,214],["12492",1,4,215],["13302",1,1,216],["13275",1,4,217],["12502",1,9,218],["4066",1,7,219],["12524",1,10,220],["12483",1,3,221],["1945",1,8,222],["10213",1,2,223],["11575",1,7,224],["13347",1,1,225],["11783",1,4,226],["4227",1,9,227],["4137",1,10,228],["9228",1,3,229],["12495",1,2,230],["11597",1,1,231],["12467",1,4,232],["3321",1,9,233],["8111",1,10,234],["9506",1,3,235],["12711",1,2,236],["7600",1,4,237],["13278",1,9,238],["11435",1,3,239],["12531",1,2,240],["12015",1,4,241],["13348",1,9,242],["13403",1,3,243],["12521",1,3,244],["8172",1,2,245],["13401",1,9,246],["12471",1,3,247],["9482",1,3,248],["13400",1,3,249],["13272",1,3,250]],"traded":[["9221",6,7,203],["9509",9,6,202],["12507",7,9,137],["9224",3,4,123],["8138",7,9,121],["12526",5,1,80],["11635",1,9,78],["11632",2,9,77],["5859",8,2,69],["8112",9,2,61],["8146",7,9,46],["12481",4,3,42],["3198",9,7,40],["8144",9,1,38],["11560",10,4,32],["8155",2,6,31],["7525",3,2,31],["12519",8,7,28],["11566",5,1,26],["6904",4,7,25],["13286",6,8,24],["11620",9,2,20],["13279",8,7,17],["4046",1,5,14],["5846",9,3,11],["11628",2,8,11],["5927",2,8,10],["6797",5,9,9],["13294",5,1,6],["8131",10,7,6],["11563",7,10,5],["13298",6,8,5],["2216",8,6,5],["7594",2,1,4],["421",9,5,4],["8228",7,9,3],["11583",8,7,3],["12533",5,2,3],["5045",4,3,3],["13349",5,1,2],["11589",10,1,2],["2449",1,5,2],["10222",1,5,2],["8180",5,10,2],["9504",5,1,2],["8183",5,2,1],["9753",7,8,1],["5967",2,5,1],["11624",9,5,1],["13413",8,2,1],["11646",1,2,1],["12484",3,4,1],["8676",7,10,1],["6804",1,5,1],["13293",7,8,1],["8134",10,5,1],["8121",1,2,1],["11643",9,2,1],["8698",7,10,1],["2078",10,7,1],["4981",10,5,1],["11581",9,7,1],["13275",4,10,1],["12524",10,4,1],["10213",2,4,1],["12711",2,7,1]],"cuts":[["2747",7,1],["9758",6,1],["12504",3,1],["4943",2,1],["4066",7,1],["11597",1,1],["13278",9,1],["12531",2,1],["12015",4,1],["13348",9,1],["13401",9,1]],"waivers":[["11651",1],["13311",1],["13353",1],["12536",3],["13274",4],["8800",4],["13533",6],["12544",7],["13303",7],["13402",8],["11834",9],["1479",9]],"values":{"9221":[11210,10638,368,1,1,24.5,5.8,9162],"9509":[11175,10175,199,2,2,24.6,3.9,9580],"7564":[9667,9523,-160,3,1,26.5,1.1,10232],"9488":[8858,8605,234,4,2,24.6,2.9,9808],"9493":[8193,9162,-325,5,3,25.3,6.2,9076],"7547":[7649,8529,387,6,4,26.9,5.8,9162],"13287":[7221,4768,-79,7,3,21.3,11.9,7939],"12527":[6973,5854,-768,8,4,22.8,10.1,8282],"11604":[6955,5891,165,9,1,23.7,25.1,5821],"12507":[6908,6876,228,10,5,23.5,18.6,6782],"9226":[6702,7358,388,11,6,24.9,23.4,6059],"6794":[6700,7360,-118,12,5,27.2,6.2,9076],"11632":[6690,5065,60,13,6,23.1,12.1,7901],"6786":[6530,7346,216,14,7,27.4,6.5,9013],"6813":[6276,8808,388,15,7,27.6,20.7,6455],"8138":[6113,8107,610,16,8,26.9,15.2,7346],"8130":[6104,5733,310,17,2,26.8,27.2,5541],"8112":[5597,5422,44,18,8,25.1,14.9,7398],"4984":[5463,5875,206,19,1,30.3,17.6,6943],"4034":[5091,8577,303,20,9,30.2,35.2,4591],"8137":[5009,5543,304,21,9,25.5,31.4,5020],"9224":[4959,6487,551,22,10,26.5,41.4,3969],"8151":[4953,6423,305,23,11,25.9,28.6,5362],"12526":[4838,3457,-43,24,10,23.4,18.0,6878],"12517":[4796,3607,272,25,3,22.4,35.9,4516],"4866":[4598,7342,442,26,12,29.6,49.9,3250],"11564":[4466,3160,-84,27,2,24.0,28.1,5425],"12514":[4456,3293,-25,28,11,23.9,23.9,5988],"7569":[4415,5211,191,29,12,27.5,21.5,6335],"8144":[4209,4854,431,30,13,26.2,22.3,6217],"8146":[4086,3728,242,31,14,26.1,20.9,6425],"4881":[4035,4412,305,32,3,29.7,31.3,5032],"5859":[4029,6050,280,33,15,29.2,26.9,5580],"8155":[4018,4327,-183,34,13,25.3,24.3,5932],"12518":[4017,3024,-51,35,4,24.3,42.0,3913],"13279":[3993,1936,-535,36,16,21.6,31.4,5020],"12512":[3921,2789,-291,37,14,22.8,55.5,2849],"11635":[3868,3826,-37,38,17,24.8,34.6,4657],"9997":[3803,3588,351,39,18,26.0,35.8,4527],"13286":[3787,2546,499,40,15,22.9,72.7,1902],"8150":[3727,4678,-69,41,16,26.0,52.4,3065],"7525":[3703,4190,58,42,19,27.8,30.7,5103],"11560":[3638,2683,92,43,4,24.8,50.4,3212],"12481":[3628,3917,7,44,17,24.6,71.1,1975],"12519":[3594,2857,48,45,20,22.7,35.7,4538],"10229":[3556,4164,51,46,21,26.4,45.1,3638],"12529":[3550,2497,-383,47,18,23.9,56.1,2810],"11566":[3528,2907,-281,48,5,25.7,35.9,4516],"6801":[3480,3724,325,49,22,27.6,43.2,3804],"7526":[3468,3324,340,50,23,27.8,34.3,4689],"6770":[3466,3411,-26,51,6,29.7,42.0,3913],"11584":[3404,3385,-162,52,19,24.0,63.9,2339],"7588":[3356,4553,-45,53,20,26.4,68.9,2080],"3198":[3281,6120,48,54,21,32.7,78.8,1648],"11628":[3273,1688,17,55,24,24.1,37.9,4309],"11620":[3272,1882,-86,56,25,24.3,38.8,4219],"13281":[3254,664,-278,57,26,22.1,47.8,3415],"9484":[3232,2146,219,58,5,25.8,49.0,3320],"7543":[3119,4264,144,59,22,27.6,54.6,2910],"13294":[3101,1038,-25,60,27,22.3,44.0,3734],"6797":[3060,2175,56,61,7,28.5,49.1,3312],"6904":[2990,2632,163,62,8,28.1,42.8,3840],"12490":[2945,2385,316,63,23,23.6,82.1,1525],"5850":[2933,4112,-121,64,24,28.6,78.8,1648],"8148":[2916,2352,187,65,28,25.4,53.8,2966],"12506":[2901,1470,-42,66,6,22.1,56.1,2810],"4046":[2781,1647,-34,67,9,31.0,39.0,4199],"11631":[2751,1434,-295,68,29,23.9,65.1,2274],"13298":[2729,700,230,69,30,21.9,66.3,2211],"9487":[2723,1980,639,70,31,24.5,76.4,1744],"6790":[2687,3264,343,71,25,27.6,88.4,1315],"11563":[2641,1466,212,72,10,26.5,76.1,1756],"7523":[2639,1793,-68,73,11,26.9,58.4,2662],"4983":[2627,2636,534,74,32,29.4,63.8,2345],"10859":[2608,1925,-212,75,7,25.6,43.1,3813],"5892":[2578,3424,275,76,26,29.2,104.3,905],"7553":[2563,1575,-12,77,8,25.9,56.1,2810],"12508":[2537,1523,-296,78,12,23.3,68.6,2094],"8167":[2446,1928,326,79,33,27.3,62.1,2440],"8183":[2305,1055,-24,80,13,26.7,67.1,2170],"11583":[2300,1084,62,81,27,23.1,96.4,1090],"2133":[2257,2458,178,82,34,33.7,91.0,1237],"13417":[2241,651,444,83,35,23.7,138.6,404],"13330":[2224,241,-176,84,9,21.5,79.7,1614],"3294":[2195,1948,82,85,14,33.1,83.4,1479],"8228":[2141,1659,135,86,28,27.8,106.4,862],"12501":[2137,527,225,87,36,23.1,112.4,748],"5927":[2137,2249,-163,88,37,31.0,70.4,2008],"12489":[2128,1403,75,89,29,25.6,119.9,627],"7611":[2078,1433,390,90,30,28.5,132.1,471],"11586":[2077,914,32,91,31,25.8,117.3,667],"13345":[2072,206,209,92,32,23.0,135.4,436],"9756":[2070,819,32,93,38,24.6,84.3,1448],"13269":[2053,62,-36,94,15,22.9,116.9,673],"4217":[2049,1461,147,95,10,32.9,94.7,1134],"13346":[2004,231,-10,96,39,22.7,94.7,1134],"6804":[1989,519,-102,97,16,27.8,92.3,1200],"5846":[1975,1323,99,98,40,28.7,64.9,2285],"13305":[1953,694,805,99,33,23.2,187.9,127],"7021":[1941,1489,80,100,34,28.2,134.6,444],"9500":[1934,841,114,101,41,25.1,101.4,969],"10236":[1929,578,192,102,11,26.9,66.6,2195],"8131":[1907,713,40,103,12,26.4,83.6,1472],"8142":[1898,750,-356,104,42,26.3,74.4,1828],"8126":[1890,794,120,105,43,25.7,96.9,1077],"12534":[1886,870,-217,106,35,24.2,115.6,694],"2216":[1874,1807,-85,107,44,33.0,98.4,1040],"10232":[1867,1225,-264,108,45,26.5,94.2,1148],"9754":[1849,771,-64,109,46,25.0,101.9,958],"3163":[1842,1182,130,110,17,31.9,105.5,880],"13276":[1802,93,-270,111,47,22.7,98.4,1040],"9753":[1798,459,-35,112,36,25.7,128.7,510],"12533":[1796,921,89,113,37,25.4,152.3,293],"7594":[1792,1297,-283,114,38,27.2,134.4,446],"4892":[1776,719,113,115,18,31.4,118.3,651],"6819":[1770,966,-50,116,48,28.9,74.8,1810],"6806":[1770,1044,101,117,39,27.7,156.6,265],"8110":[1751,701,134,118,13,27.6,111.9,757],"10222":[1740,801,-42,119,49,26.4,107.8,834],"12522":[1728,309,-280,120,19,24.3,127.0,531],"13349":[1725,0,-150,121,14,23.4,106.8,853],"4037":[1709,960,86,122,50,30.5,111.6,762],"9758":[1703,364,-52,123,20,24.9,85.1,1421],"8408":[1698,950,90,124,40,27.3,164.8,218],"5045":[1697,964,47,125,51,30.9,99.6,1011],"12545":[1693,669,-52,126,21,26.9,128.6,511],"12484":[1684,0,-17,127,52,23.7,98.0,1050],"8121":[1679,587,195,128,53,26.4,119.9,627],"12530":[1678,155,-217,129,54,23.3,150.3,307],"13288":[1675,0,57,130,41,22.7,179.6,154],"5967":[1664,1157,11,131,42,29.4,147.1,331],"12474":[1646,483,150,132,43,25.7,169.0,198],"13293":[1627,195,797,133,55,22.3,171.6,186],"11646":[1618,522,71,134,56,24.8,124.7,560],"11624":[1613,417,-184,135,57,23.4,100.0,1001],"5849":[1605,561,215,136,22,29.1,134.9,441],"8136":[1597,655,67,137,44,27.6,162.4,231],"13311":[1596,0,74,138,58,22.2,148.2,323],"11581":[1590,391,462,139,45,25.7,230.5,47],"7567":[1574,874,-157,140,46,27.5,148.1,323],"13285":[1560,0,579,141,59,23.0,195.0,107],"2449":[1555,1139,275,142,60,32.8,144.1,355],"8132":[1551,387,149,143,47,26.4,171.1,188],"12487":[1549,53,293,144,15,23.5,134.5,445],"5022":[1540,586,206,145,16,31.7,123.5,576],"421":[1479,1219,107,146,23,38.6,139.4,397],"12493":[1472,216,-335,147,17,23.2,119.7,630],"13413":[1467,70,688,148,61,23.6,214.3,68],"11576":[1467,61,139,149,48,22.6,202.5,90],"13301":[1461,0,-107,150,62,22.1,138.8,402],"10219":[1459,409,101,151,49,26.9,180.9,150],"9511":[1449,160,133,152,50,24.6,186.5,131],"4943":[1439,253,-71,153,24,29.3,140.7,385],"1466":[1420,1280,-31,154,18,36.9,154.4,279],"8134":[1419,485,89,155,63,26.6,122.4,592],"13274":[1414,0,82,156,64,22.8,156.6,265],"12469":[1402,61,-77,157,51,22.0,183.4,141],"5012":[1402,730,44,158,19,31.0,124.5,563],"13414":[1391,20,228,159,52,24.9,243.7,34],"12492":[1388,0,332,160,65,23.7,167.6,204],"8210":[1382,217,-18,161,20,27.0,152.9,289],"8676":[1372,321,114,162,66,28.0,148.2,323],"5844":[1359,173,27,163,21,29.2,168.4,201],"9225":[1350,88,-91,164,53,24.0,201.4,92],"5872":[1345,568,477,165,67,30.6,175.4,170],"11603":[1339,146,3,166,22,24.3,154.0,281],"5947":[1337,397,-77,167,68,29.8,109.0,810],"9504":[1335,108,230,168,69,24.3,181.0,149],"9228":[1334,160,-45,169,25,25.1,154.6,278],"11618":[1332,28,-64,170,70,24.7,153.4,285],"13296":[1324,25,609,171,71,23.0,205.6,84],"12509":[1321,0,126,172,72,24.5,141.5,378],"13317":[1314,0,39,173,73,22.2,168.5,200],"9502":[1314,101,97,174,74,26.9,152.6,291],"8154":[1314,155,108,175,54,27.5,218.6,62],"9480":[1308,200,-191,176,23,25.7,113.6,727],"4199":[1307,423,-38,177,55,31.8,191.1,118],"11638":[1302,0,-535,178,75,26.0,126.7,535],"8161":[1297,206,50,179,26,27.3,135.6,434],"13337":[1292,40,234,180,56,22.9,173.2,179],"9508":[1269,154,54,181,57,25.2,195.3,107],"7002":[1269,428,107,182,24,30.0,161.8,234],"11655":[1264,222,-125,183,58,26.8,169.4,196],"8205":[1261,65,-77,184,59,27.5,213.8,69],"5870":[1261,189,25,185,27,29.3,146.4,337],"5001":[1253,176,177,186,25,30.2,186.1,132],"13320":[1252,17,-109,187,76,22.4,197.1,102],"4035":[1247,83,-11,188,60,31.1,216.6,65],"9486":[1241,15,448,189,77,25.2,199.1,98],"3214":[1237,184,116,190,26,31.7,175.9,168],"11610":[1230,97,132,191,78,25.7,232.5,44],"12502":[1229,0,-74,192,27,24.0,187.6,128],"8180":[1208,177,15,193,79,27.5,203.1,89],"10213":[1180,116,151,194,80,25.5,217.4,63],"11625":[1175,12,98,195,81,23.9,159.4,248],"12535":[1141,0,-69,196,82,24.5,183.2,142],"13275":[1139,0,127,197,28,23.7,156.2,267],"12536":[1112,0,92,198,83,24.0,163.1,227],"12457":[1026,0,53,199,61,22.7,288.7,12],"13405":[982,0,66,200,62,23.7,203.3,88],"7528":[981,0,706,201,63,28.5,311.8,7],"13421":[971,0,28,202,28,22.6,191.4,117],"6783":[962,33,-198,203,84,27.4,168.9,198],"1479":[957,253,586,204,85,34.4,249.3,30],"7049":[923,50,-191,205,86,29.2,164.2,222],"11559":[902,0,80,206,29,26.3,176.4,166],"13402":[899,0,33,207,87,24.2,196.5,104],"12497":[898,0,-77,208,88,23.8,214.9,67],"11637":[869,0,-252,209,89,23.3,234.3,43],"12504":[867,0,-341,210,64,23.1,259.3,24],"11643":[864,0,-38,211,65,23.4,249.1,30],"8172":[854,0,-207,212,29,26.4,192.2,115],"13347":[820,0,-360,213,66,22.9,237.7,39],"12524":[811,0,-79,214,30,24.6,204.1,87],"11783":[801,0,-29,215,90,26.9,217.4,63],"13289":[793,0,502,216,31,22.5,267.4,20],"1373":[792,51,73,217,32,35.9,232.0,45],"6768":[785,65,-29,218,33,28.5,217.4,63],"13268":[784,0,-440,219,91,23.3,177.5,162],"3257":[776,54,-29,220,34,33.7,225.6,52],"11575":[771,0,-59,221,67,26.8,253.6,27],"12483":[753,0,-245,222,92,23.7,216.6,65],"7600":[752,0,0,223,30,27.9,210.9,74],"8111":[743,0,-233,224,31,27.4,207.1,81],"11627":[735,0,-313,225,93,23.6,176.0,168],"12547":[734,0,39,226,94,23.8,215.9,66],"12495":[731,0,-339,227,68,22.6,244.2,34],"11589":[716,0,-350,228,69,24.1,284.0,13],"11647":[707,0,-208,229,70,25.0,227.9,50],"4033":[705,0,-189,230,32,30.2,212.1,72],"13424":[704,0,299,231,71,24.9,296.3,10],"13272":[698,0,-2,232,35,23.8,249.0,30],"96":[697,100,-38,233,36,42.8,228.1,49],"12467":[695,0,-363,234,72,22.4,290.6,11],"11565":[691,0,-152,235,37,23.6,218.9,61],"4017":[690,45,23,236,38,31.0,251.7,28],"12498":[668,0,-47,237,33,22.3,206.0,83],"1166":[663,37,89,238,39,38.1,259.6,24],"2505":[646,5,538,239,34,34.0,338.0,4],"6803":[633,0,-509,240,95,28.5,152.6,291],"12499":[613,0,-119,241,96,23.3,202.1,91],"12521":[601,0,-194,242,35,23.4,202.1,91],"4137":[595,0,-160,243,73,31.3,254.8,26],"13302":[585,0,-114,244,74,22.1,268.7,19],"4039":[583,0,-98,245,97,33.2,260.5,23],"11834":[567,9,342,246,98,28.7,268.6,19],"3321":[565,0,-459,247,99,32.5,146.2,338],"9482":[533,0,-162,248,36,25.2,225.4,53],"4981":[530,0,-193,249,100,31.7,202.7,90],"4066":[528,0,-9,250,37,32.0,270.4,18],"12540":[526,0,-264,251,101,24.7,216.9,64],"7571":[502,0,3,252,102,26.8,222.9,56],"13420":[499,0,-18,253,103,24.0,205.5,84],"9506":[499,0,-305,254,75,24.9,261.7,22],"13278":[498,0,-163,255,38,23.2,202.1,91],"13319":[488,0,-98,256,39,23.1,196.9,103],"8698":[474,0,-266,257,40,27.2,296.9,10],"7527":[474,0,-133,258,40,28.0,211.3,73],"7090":[465,0,-149,259,104,28.9,213.0,70],"13353":[433,0,-386,260,105,23.0,199.2,97],"12471":[425,0,-129,261,76,23.0,301.2,9],"13329":[405,0,153,262,106,23.9,298.0,10],"13533":[402,0,405,263,107,22.7,332.9,4],"13411":[402,0,-181,264,108,22.6,337.8,4],"11626":[383,0,-166,265,109,25.6,261.4,23],"11569":[379,0,269,266,77,23.7,298.8,9],"13400":[367,0,-209,267,41,22.2,238.4,39],"12544":[367,0,-268,268,78,22.1,317.6,6],"13423":[358,0,-221,269,79,23.2,298.9,9],"13303":[355,0,54,270,41,22.9,268.0,19],"12503":[343,0,-199,271,110,22.5,293.7,11],"7591":[341,0,-229,272,42,27.5,266.5,20],"9229":[336,0,-105,273,43,24.3,149.7,311],"11571":[328,0,-210,274,80,24.5,287.1,12],"12531":[324,0,-58,275,81,22.2,329.2,5],"11597":[322,0,-389,276,42,25.5,235.6,41],"11435":[321,0,-144,277,82,27.3,266.5,20],"10218":[306,0,230,278,111,26.3,251.0,29],"5995":[305,0,36,279,83,28.8,324.2,5],"13602":[297,0,307,280,44,22.2,0,0],"12048":[297,0,-134,281,84,26.7,309.8,7],"12476":[297,0,-197,282,85,23.1,273.5,17],"8800":[295,0,118,283,86,27.8,267.8,19],"12543":[293,0,60,284,87,24.3,321.9,5],"2078":[280,0,282,285,112,33.8,0,0],"9501":[279,0,12,286,113,25.7,271.7,18],"6826":[272,0,-24,287,43,27.5,256.0,26],"13380":[271,0,-182,288,114,23.1,242.2,35],"12485":[271,0,-234,289,115,24.3,261.9,22],"6865":[270,0,-176,290,44,27.7,261.9,22],"13324":[253,0,-2,291,45,24.5,0,0],"12510":[241,0,-118,292,45,23.7,259.2,24],"13348":[240,0,-41,293,88,24.5,324.2,5],"4993":[237,0,-107,294,46,30.9,294.2,10],"4950":[232,0,-88,295,116,29.8,242.0,36],"13307":[230,0,232,296,47,24.0,310.2,7],"8119":[227,0,93,297,117,26.5,307.0,8],"11630":[224,0,7,298,118,25.2,0,0],"11557":[220,0,117,299,46,26.5,279.8,15],"9494":[216,0,-184,300,119,24.5,244.9,33],"13338":[213,0,-177,301,120,23.0,226.7,51],"13477":[212,0,127,302,121,24.1,337.3,4],"12505":[209,0,-109,303,122,23.5,281.2,14],"13726":[208,0,210,304,123,0,0,0],"11370":[207,0,-40,305,89,26.6,298.2,10],"9479":[205,0,-109,306,48,25.0,269.9,18],"13270":[199,0,84,307,124,24.7,0,0],"12455":[197,0,-80,308,90,23.4,305.4,8],"4147":[196,0,16,309,91,31.0,334.5,4],"11600":[193,0,-233,310,49,23.4,308.0,8],"8188":[190,0,-101,311,125,26.1,280.7,14],"13333":[183,0,75,312,126,23.7,304.0,8],"10226":[178,0,-170,313,127,26.9,285.2,13],"13408":[176,0,92,314,50,22.6,298.7,9],"13315":[173,0,172,315,92,23.0,350.3,3],"5906":[157,0,-23,316,51,29.8,339.0,4],"12511":[155,0,-15,317,47,24.9,301.0,9],"11199":[152,0,96,318,93,27.6,342.0,3],"13335":[149,0,131,319,48,23.9,261.6,22],"13394":[149,0,150,320,128,23.5,340.6,4],"8135":[145,0,-89,321,129,26.5,337.3,4],"13434":[144,0,47,322,52,23.6,345.5,3],"2306":[142,0,6,323,49,32.7,282.0,14],"12470":[139,0,-32,324,50,24.0,306.0,8],"12541":[139,0,-184,325,130,23.8,327.7,5],"10444":[138,0,-43,326,131,26.4,273.3,17],"13418":[133,0,132,327,94,24.7,345.8,3],"11650":[133,0,7,328,132,25.4,305.4,8],"13308":[131,0,132,329,53,23.3,0,0],"12482":[131,0,-120,330,133,24.8,323.6,5],"4144":[129,0,130,331,54,31.0,341.9,3],"13415":[128,0,133,332,51,25.7,302.0,9],"13403":[126,0,-161,333,95,0,345.8,3],"8117":[124,0,-141,334,134,27.5,289.2,12],"12641":[124,0,28,335,135,24.3,321.4,6],"9757":[118,0,-46,336,96,24.2,318.3,6],"2307":[116,0,-58,337,52,32.9,273.2,17],"13306":[113,0,-3,338,53,23.9,274.4,17],"11592":[113,0,16,339,55,26.0,307.8,8],"12500":[109,0,-53,340,54,23.5,290.8,11],"13322":[101,0,-114,341,56,23.0,279.6,15],"9481":[97,0,30,342,57,26.0,349.4,3],"11596":[95,0,-131,343,58,24.2,286.5,13],"11256":[93,0,6,344,55,26.2,306.6,8],"6149":[92,0,-59,345,136,29.6,287.1,12],"13404":[90,0,-112,346,56,24.6,325.0,5],"11651":[82,0,-81,347,97,26.2,330.6,4],"19":[78,0,-110,348,57,41.6,314.2,7],"7585":[76,0,-18,349,58,27.9,342.2,3],"12738":[76,0,-22,350,98,23.9,364.0,2],"6039":[75,0,-14,351,99,29.0,341.7,3],"12670":[75,0,31,352,137,24.9,339.3,4],"12523":[73,0,0,353,138,24.0,358.0,2],"4454":[71,0,22,354,139,31.1,271.5,18],"12542":[71,0,72,355,140,24.9,358.0,2],"13282":[70,0,-30,356,59,22.4,329.6,5],"7828":[69,0,-27,357,60,27.4,329.2,5],"5848":[68,0,-287,358,141,29.3,277.2,16],"5857":[67,0,26,359,61,28.8,329.8,5],"7891":[66,0,67,360,62,27.8,373.9,2],"11577":[66,0,6,361,100,24.0,323.8,5],"10235":[65,0,-2,362,101,25.6,328.7,5],"4018":[65,0,-256,363,102,30.1,349.8,3],"11562":[60,0,-35,364,59,25.9,281.2,14],"8127":[58,0,47,365,63,27.6,322.5,5],"1339":[58,0,-8,366,64,35.8,339.3,4],"4988":[57,0,-57,367,103,30.7,355.5,2],"6130":[56,0,56,368,104,29.0,296.4,10],"8143":[56,0,31,369,105,27.0,293.5,11],"13401":[52,0,-96,370,65,24.2,332.4,4],"8147":[52,0,-38,371,142,26.1,335.3,4],"13314":[49,0,51,372,60,23.9,363.3,2],"8917":[45,0,7,373,143,30.1,331.0,4],"7562":[45,0,-53,374,144,26.9,339.8,4],"8160":[45,0,47,375,61,28.2,344.2,3],"12472":[44,0,20,376,106,24.2,346.6,3],"11623":[44,0,31,377,145,25.9,349.8,3],"827":[42,0,29,378,62,37.1,352.0,3],"4098":[42,0,-16,379,107,31.1,333.7,4],"4663":[41,0,41,380,108,31.3,359.0,2],"7610":[38,0,-29,381,63,26.3,336.0,4],"9999":[34,0,-32,382,64,27.2,341.4,3],"13392":[33,0,-47,383,146,23.5,337.6,4],"4972":[33,0,16,384,65,31.1,347.8,3],"3271":[33,0,34,385,66,33.7,321.8,5],"4177":[32,0,-40,386,147,33.0,326.2,5],"7083":[31,0,-3,387,66,28.6,352.8,3],"6271":[30,0,-16,388,148,29.1,348.4,3],"6011":[30,0,-63,389,67,30.3,344.8,3],"13419":[24,0,-74,390,109,23.7,354.4,3],"12486":[24,0,25,391,68,25.7,349.8,3],"8225":[22,0,16,392,67,26.0,356.9,2],"11608":[13,0,14,393,149,25.6,0,0],"7496":[12,0,-33,394,150,29.5,344.0,3],"7601":[11,0,12,395,151,26.2,0,0],"4179":[9,0,10,396,69,31.6,0,0],"11579":[8,0,-131,397,110,23.0,321.2,6],"10857":[4,0,5,398,70,28.9,0,0]},"pickVals":{"2027-1":2730,"2027-2":1467,"2027-3":1031,"2027-4":815,"2028-1":2029,"2028-2":1266,"2028-3":938,"2028-4":771},"teamPicks":{"1":[["2027",1,1],["2027",2,1],["2027",4,1],["2028",2,1],["2028",3,1],["2028",4,1],["2028",4,5]],"3":[["2027",1,2],["2027",1,3],["2027",2,3],["2027",2,4],["2027",3,3],["2027",4,3],["2028",1,3],["2028",2,3],["2028",3,3],["2028",4,3]],"4":[["2027",1,4],["2027",3,4],["2027",4,4],["2028",1,4],["2028",3,4],["2028",4,4]],"5":[["2027",1,5],["2027",2,5],["2027",3,1],["2027",3,5],["2027",4,5],["2028",1,1],["2028",1,5],["2028",2,5],["2028",3,5]],"8":[["2027",1,6],["2027",1,8],["2027",2,8],["2027",3,8],["2027",3,9],["2027",3,10],["2027",4,8],["2028",1,8],["2028",2,8],["2028",3,8],["2028",4,6],["2028",4,8],["2029",2,7]],"10":[["2027",1,7],["2027",1,10],["2027",2,10],["2027",4,10],["2028",1,10],["2028",2,4],["2028",2,10],["2028",4,10]],"9":[["2027",1,9],["2027",2,9],["2027",4,9],["2028",1,7],["2028",1,9],["2028",2,9],["2028",3,9],["2028",4,9],["2029",1,7]],"2":[["2027",2,2],["2027",3,2],["2027",4,2],["2028",1,2],["2028",2,2],["2028",3,2],["2028",4,2]],"6":[["2027",2,6],["2027",2,7],["2027",3,6],["2027",4,6],["2028",1,6],["2028",2,6],["2028",3,6]],"7":[["2027",3,7],["2027",4,7],["2028",2,7],["2028",3,7],["2028",3,10],["2028",4,7]]}}</script>
+<script>
+const FF = JSON.parse(document.getElementById('ff-data').textContent);
+const POS_ORDER = ['WR','TE','RB','K','QB'];            // validated stack order
+const POS_VAR = {WR:'--wr',TE:'--te',RB:'--rb',K:'--k',QB:'--qb'};
+const posColor = p => `var(${POS_VAR[p]||'--mute'})`;
+const $ = s => document.querySelector(s);
+const fmt$ = n => '$' + n.toLocaleString('en-US');
+const teamsById = {}; FF.teams.forEach(t=>teamsById[t.rid]=t);
+const P = FF.players;
+const tn = t => (t.tn||t.h).trim();
+
+// per-team spend by position
+const spend = {}; FF.teams.forEach(t=>spend[t.rid]={QB:0,RB:0,WR:0,TE:0,K:0,total:0,n:0});
+FF.picks.forEach(([pid,amt,rid])=>{const pos=P[pid]?.p||'?';
+  if(spend[rid][pos]!==undefined)spend[rid][pos]+=amt; spend[rid].total+=amt; spend[rid].n++;});
+const leaguePos = {QB:0,RB:0,WR:0,TE:0,K:0};
+FF.picks.forEach(([pid,amt])=>{const pos=P[pid]?.p; if(leaguePos[pos]!==undefined)leaguePos[pos]+=amt;});
+const totalSpent = Object.values(leaguePos).reduce((a,b)=>a+b,0);
+const priceOf = {}; const drafterOf = {};
+FF.picks.forEach(([pid,amt,rid])=>{priceOf[pid]=amt;drafterOf[pid]=rid;});
+const movedIn = {};    // pid -> fromRid (players acquired via other teams)
+FF.traded.forEach(([pid,frm,to])=>movedIn[pid]=frm);
+
+/* ---------- tooltip ---------- */
+const tip = $('#tip');
+function showTip(html,x,y){tip.innerHTML=html;tip.style.opacity=1;tip.style.transform='translateY(0)';
+  const w=tip.offsetWidth,h=tip.offsetHeight;
+  tip.style.left=Math.min(Math.max(8,x-w/2),innerWidth-w-8)+'px';
+  tip.style.top=(y-h-12<8? y+16 : y-h-12)+'px';}
+function hideTip(){tip.style.opacity=0;tip.style.transform='translateY(3px)';}
+function bindTip(el,html){el.addEventListener('pointermove',e=>showTip(html,e.clientX,e.clientY));
+  el.addEventListener('pointerleave',hideTip);}
+
+/* ---------- header ---------- */
+{
+  const iso=FF.meta.snapshotISO?Date.parse(FF.meta.snapshotISO):NaN;
+  const stamp=$('#age-stamp');
+  const fmtAge=()=>{
+    if(isNaN(iso)){stamp.textContent='data: '+FF.meta.snapshot;return;}
+    const h=(Date.now()-iso)/36e5;
+    const t=h<1?Math.max(1,Math.round(h*60))+' min':(h<48?Math.round(h)+' hr':Math.round(h/24)+' days');
+    stamp.textContent=`data ${t} old`;
+    stamp.classList.toggle('stale',h>30);
+  };
+  fmtAge();setInterval(fmtAge,60000);
+  $('#refresh-btn').addEventListener('click',()=>{
+    const b=$('#refresh-btn');b.disabled=true;b.textContent='Refreshing…';
+    setTimeout(()=>location.reload(),250);});
+}
+$('#ft-draft').textContent = FF.meta.draftDate;
+
+/* ---------- tabs ---------- */
+let curTab='war';
+try{curTab = localStorage.getItem('ff-tab') || 'war';}catch(e){}
+function setTab(t){curTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));
+  ['war','fr','trade','board','wire'].forEach(k=>$('#sec-'+k).hidden = k!==t);
+  try{localStorage.setItem('ff-tab',t);}catch(e){}}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab'); if(b) setTab(b.dataset.t);});
+
+/* ---------- war room: tiles ---------- */
+const oneDollar = FF.picks.filter(p=>p[1]===1).length;
+const tiles = [
+  [fmt$(totalSpent), `of ${fmt$(FF.meta.budget*FF.meta.nTeams)} spent`, true],
+  [String(FF.picks.length), 'players auctioned', false],
+  [String(oneDollar), '$1 buys', false],
+  [String(FF.traded.length), 'changed hands since auction', false],
+];
+$('#tiles').innerHTML = tiles.map(([v,k,m])=>
+  `<div class="tile"><div class="v${m?' money':''}">${v}</div><div class="k">${k}</div></div>`).join('');
+
+/* ---------- war room: ops facts ---------- */
+const lineupStr = 'QB · 2 RB · 2 WR · TE · 2 FLEX · K';
+$('#ops-facts').innerHTML = [
+  ['Format', `${FF.meta.nTeams}-team dynasty · ${FF.meta.scoring}`],
+  ['Lineup', `${lineupStr} + ${FF.meta.benchSlots} bench`],
+  ['Reserves', `${FF.meta.taxi} taxi · ${FF.meta.ir} IR slots`],
+  ['Waivers', `FAAB ${fmt$(FF.meta.faab)} · processed Mondays`],
+  ['Trade deadline', `Week ${FF.meta.deadline}`],
+  ['Playoffs', `${FF.meta.playoffTeams} of ${FF.meta.nTeams} qualify · start Week ${FF.meta.playoffStart}`],
+  ['Auction', `${fmt$(FF.meta.budget)} budget · held ${FF.meta.draftDate}`],
+].map(([k,v])=>`<div style="display:flex;gap:12px"><span style="flex:none;width:110px;font-weight:600;color:var(--mute);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding-top:2px">${k}</span><span>${v}</span></div>`).join('');
+
+/* ---------- war room: position chart ---------- */
+{
+  const rows = Object.entries(leaguePos).sort((a,b)=>b[1]-a[1]);
+  const max = rows[0][1];
+  $('#pos-chart').innerHTML = rows.map(([pos,amt])=>`
+    <div class="rrow">
+      <span class="lab"><i style="background:${posColor(pos)}"></i>${pos}</span>
+      <span class="track"><span class="fill" data-tip="1" data-pos="${pos}" data-amt="${amt}" style="width:${(amt/max*100).toFixed(1)}%"></span></span>
+      <span class="val">${fmt$(amt)}</span>
+    </div>`).join('');
+  document.querySelectorAll('#pos-chart .fill').forEach(el=>{
+    const pos=el.dataset.pos, amt=+el.dataset.amt;
+    bindTip(el,`<b>${pos}</b> — <span class="m">${fmt$(amt)}</span> · ${(amt/totalSpent*100).toFixed(1)}% of all dollars`);
+  });
+}
+
+/* ---------- war room: top board ---------- */
+{
+  const top = [...FF.picks].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  $('#topboard').innerHTML = top.map(([pid,amt,rid],i)=>{
+    const pl=P[pid], t=teamsById[rid];
+    return `<div class="bcard" style="border-left-color:${posColor(pl.p)}">
+      <div class="rk">No. ${i+1}</div>
+      <div class="nm">${pl.n}</div>
+      <div class="sub">${pl.p} · ${pl.t} — ${t.h}</div>
+      <div class="pr">${fmt$(amt)}</div>
+    </div>`;}).join('');
+}
+
+/* ---------- war room: stacked spend ---------- */
+{
+  const rows=[...FF.teams].sort((a,b)=>spend[b.rid].RB-spend[a.rid].RB);
+  $('#team-stack').innerHTML = rows.map(t=>{
+    const s=spend[t.rid];
+    const segs=POS_ORDER.map(pos=>{
+      const w=(s[pos]/FF.meta.budget*100);
+      return s[pos]>0?`<span class="seg" data-rid="${t.rid}" data-pos="${pos}" style="flex:0 0 ${w.toFixed(2)}%;background:${posColor(pos)}"></span>`:'';
+    }).join('');
+    return `<div class="srow"><span class="lab" title="${tn(t)}">${t.h}</span><span class="sbar">${segs}</span></div>`;
+  }).join('');
+  document.querySelectorAll('#team-stack .seg').forEach(el=>{
+    const t=teamsById[el.dataset.rid], pos=el.dataset.pos, s=spend[el.dataset.rid];
+    bindTip(el,`<b>${t.h}</b><br>${pos}: <span class="m">${fmt$(s[pos])}</span> of ${fmt$(s.total)}`);
+  });
+  $('#stack-legend').innerHTML = POS_ORDER.map(p=>`<span><i style="background:${posColor(p)}"></i>${p}</span>`).join('');
+}
+
+/* ---------- war room: histogram ---------- */
+{
+  const bins=[['$1',v=>v===1],['$2–5',v=>v>=2&&v<=5],['$6–15',v=>v>=6&&v<=15],['$16–40',v=>v>=16&&v<=40],['$41–80',v=>v>=41&&v<=80],['$81–150',v=>v>=81&&v<=150],['$150+',v=>v>150]];
+  const counts=bins.map(([l,f])=>[l,FF.picks.filter(p=>f(p[1])).length]);
+  const max=Math.max(...counts.map(c=>c[1]));
+  $('#hist').innerHTML=counts.map(([l,c])=>`
+    <div class="hcol"><span class="c">${c}</span>
+      <span class="hbar" data-l="${l}" data-c="${c}" style="height:${(c/max*100).toFixed(1)}%"></span>
+      <span class="b">${l}</span></div>`).join('');
+  document.querySelectorAll('#hist .hbar').forEach(el=>
+    bindTip(el,`<b>${el.dataset.l}</b> — ${el.dataset.c} players (${(el.dataset.c/FF.picks.length*100).toFixed(0)}%)`));
+}
+
+/* ---------- franchises ---------- */
+let curFr = null;
+try{curFr = +localStorage.getItem('ff-fr') || null;}catch(e){}
+if(!curFr || !teamsById[curFr]) curFr = (FF.teams.find(t=>t.h==='H1nks')||FF.teams[0]).rid;
+
+$('#fchips').innerHTML = FF.teams.map(t=>
+  `<button class="fchip" data-rid="${t.rid}" aria-pressed="false">${t.h}</button>`).join('');
+$('#fchips').addEventListener('click',e=>{const b=e.target.closest('.fchip'); if(b){renderFr(+b.dataset.rid);}});
+
+function srcOf(pid){
+  if(movedIn[pid]!==undefined){const from=teamsById[movedIn[pid]];
+    return {label:`via ${from.h}`, cost:priceOf[pid], acquired:true};}
+  if(priceOf[pid]!==undefined) return {label:'auction', cost:priceOf[pid], acquired:false};
+  return {label:'waivers', cost:null, acquired:false};
+}
+function playerRow(pid, slot){
+  const pl=P[pid]||{n:pid,p:'?',t:'—'}; const s=srcOf(pid);
+  const cost = s.cost!=null?`<span class="mono money">${fmt$(s.cost)}</span>`:`<span class="src">FA</span>`;
+  const via = s.acquired?`<span class="src">${s.label}</span>`:(s.cost==null?`<span class="src">waivers</span>`:'');
+  return `<tr>
+    ${slot!==undefined?`<td style="color:var(--mute);font-size:11px;font-weight:600;letter-spacing:.1em">${slot}</td>`:''}
+    <td class="pname">${pl.n}</td>
+    <td><span class="pos"><i style="background:${posColor(pl.p)}"></i>${pl.p}</span></td>
+    <td class="nfl">${pl.t}</td>
+    <td class="num">${cost}</td>
+    <td>${via}</td>
+  </tr>`;
+}
+function renderFr(rid){
+  curFr=rid; try{localStorage.setItem('ff-fr',String(rid));}catch(e){}
+  document.querySelectorAll('.fchip').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.rid===rid)));
+  const t=teamsById[rid], s=spend[rid];
+  $('#fr-name').textContent=tn(t);
+  $('#fr-hand').textContent='@'+t.h;
+  const faabLeft=FF.meta.faab - t.faab;
+  const rosterN=t.st.length+t.bn.length+t.tx.length+t.ir.length;
+  const rvTot=[...t.st,...t.bn,...t.tx,...t.ir].map(String).reduce((s,id)=>s+dyn(id),0);
+  const pkList=(TEAMPICKS[String(rid)]||[]);
+  const pkTot=pkList.reduce((s,[se,r])=>s+(PICKVALS[`${se}-${r}`]||0),0);
+  $('#fr-facts').innerHTML=`
+    <span>Record <b>${t.w}–${t.l}</b></span>
+    <span>Auction spend <b class="mono money">${fmt$(s.total)}</b> on <b>${s.n}</b> players</span>
+    <span>Roster <b>${rosterN}</b> (incl. taxi + IR)</span>
+    <span class="meter">FAAB <b class="mono">${fmt$(faabLeft)}</b>
+      <span class="mtrack"><span class="mfill" style="width:${(faabLeft/FF.meta.faab*100)}%"></span></span></span>
+    <span>Market value <b class="mono money">${fmtK(rvTot+pkTot)}</b></span>
+    <span style="flex-basis:100%;margin-top:2px">${pkList.map(([se,r,o])=>`<span class="pkchip"><b>${se} ${ORD[r-1]}</b>${o!==rid?' via '+teamsById[o].h:''} <span class="sv">${fmtK(PICKVALS[`${se}-${r}`]||0)}</span></span>`).join('')||'<span class="src">No future rookie picks held</span>'}</span>`;
+
+  const slots=FF.meta.lineup;
+  let html=`<thead><tr><th>Slot</th><th>Player</th><th>Pos</th><th>NFL</th><th class="num">Cost</th><th></th></tr></thead><tbody>`;
+  html+=t.st.map((pid,i)=>playerRow(pid,slots[i]||'ST')).join('');
+  html+=`</tbody>`;
+  const group=(label,arr)=> arr.length?
+    `<tbody><tr><td colspan="6" class="group-h">${label}</td></tr>${arr.map(pid=>playerRow(pid,'')).join('')}</tbody>`:'';
+  html+=group('Bench',t.bn)+group('Taxi Squad',t.tx)+group('Injured Reserve',t.ir);
+  $('#fr-roster').innerHTML=html;
+
+  // caps
+  const counts={QB:0,RB:0,WR:0,TE:0,K:0};
+  [...t.st,...t.bn,...t.tx,...t.ir].forEach(pid=>{const p=P[pid]?.p; if(counts[p]!==undefined)counts[p]++;});
+  $('#fr-caps').innerHTML=Object.entries(FF.meta.caps).map(([pos,cap])=>{
+    const c=counts[pos], full=c>=cap;
+    return `<div class="caprow">
+      <span class="cl"><i style="background:${posColor(pos)}"></i>${pos}</span>
+      <span class="track" style="height:9px"><span class="fill" style="width:${Math.min(100,c/cap*100)}%;background:${full?'var(--money)':'var(--accent)'}"></span></span>
+      <span class="cv">${c} / ${cap}</span></div>`;}).join('');
+
+  // spend profile (single stacked bar + top buys)
+  const segs=POS_ORDER.map(pos=> s[pos]>0?
+    `<span class="seg" data-pos="${pos}" data-amt="${s[pos]}" style="flex:0 0 ${(s[pos]/s.total*100).toFixed(2)}%;background:${posColor(pos)}"></span>`:'').join('');
+  const buys=FF.picks.filter(p=>p[2]===rid).sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([pid,amt])=>`${P[pid].n} <span class="mono money">${fmt$(amt)}</span>`).join(' · ');
+  $('#fr-spend').innerHTML=`<div class="srow"><span class="lab">by pos</span><span class="sbar" style="height:22px">${segs}</span></div>
+    <div class="legend">${POS_ORDER.filter(p=>s[p]>0).map(p=>`<span><i style="background:${posColor(p)}"></i>${p} <span class="mono" style="font-size:11px">${fmt$(s[p])}</span></span>`).join('')}</div>`;
+  document.querySelectorAll('#fr-spend .seg').forEach(el=>
+    bindTip(el,`<b>${el.dataset.pos}</b> — <span class="m">${fmt$(+el.dataset.amt)}</span>`));
+  $('#fr-spend-note').innerHTML=`Biggest tickets: ${buys}`;
+}
+
+/* ---------- auction board ---------- */
+let bq='', bpos='ALL', bsort='price';
+$('#pf').innerHTML=['ALL','QB','RB','WR','TE','K'].map(p=>
+  `<button class="pfbtn" data-p="${p}" aria-pressed="${p==='ALL'}">${p}</button>`).join('');
+$('#pf').addEventListener('click',e=>{const b=e.target.closest('.pfbtn'); if(!b)return;
+  bpos=b.dataset.p; document.querySelectorAll('.pfbtn').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.p===bpos)));
+  renderBoard();});
+$('#q').addEventListener('input',e=>{bq=e.target.value.toLowerCase();renderBoard();});
+$('#sort').addEventListener('click',()=>{bsort=bsort==='price'?'order':'price';
+  $('#sort').textContent = bsort==='price'?'Sort: Price ▾':'Sort: Nomination order';
+  renderBoard();});
+function renderBoard(){
+  let rows=[...FF.picks];
+  if(bpos!=='ALL') rows=rows.filter(([pid])=>P[pid]?.p===bpos);
+  if(bq) rows=rows.filter(([pid,,rid])=> (P[pid]?.n||'').toLowerCase().includes(bq) || teamsById[rid].h.toLowerCase().includes(bq) || tn(teamsById[rid]).toLowerCase().includes(bq));
+  rows.sort(bsort==='price'? (a,b)=>b[1]-a[1]||a[3]-b[3] : (a,b)=>a[3]-b[3]);
+  const body=rows.map(([pid,amt,rid,no],i)=>{const pl=P[pid],t=teamsById[rid];
+    return `<tr><td class="num" style="color:var(--mute);font-size:11.5px">${bsort==='price'?i+1:no}</td>
+      <td class="pname">${pl.n}</td>
+      <td><span class="pos"><i style="background:${posColor(pl.p)}"></i>${pl.p}</span></td>
+      <td class="nfl">${pl.t}</td><td>${t.h}</td>
+      <td class="num mono money">${fmt$(amt)}</td></tr>`;}).join('');
+  $('#btable').innerHTML=`<thead><tr><th class="num">${bsort==='price'?'#':'Nom.'}</th><th>Player</th><th>Pos</th><th>NFL</th><th>Won by</th><th class="num">Price</th></tr></thead><tbody>${body||'<tr><td colspan=6 style="color:var(--mute)">No matches.</td></tr>'}</tbody>`;
+}
+
+/* ---------- wire ---------- */
+const fmtDate=ts=>new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const wireAsset=pid=>{const pl=P[pid]||{n:pid,p:'?'};
+  return `<span class="pos"><i style="background:${posColor(pl.p)}"></i>${pl.p}</span> <span class="nm">${pl.n}</span>`;};
+function renderWire(){
+  const tx=FF.txns||[];
+  const dynTag=pid=>dyn(pid)?`<span class="sv">${fmtK(dyn(pid))}</span>`:'';
+  if(!tx.length){
+    $('#wire-note').textContent='No transactions logged yet';
+    $('#wire-trades').innerHTML='<div class="fx-empty">Nothing on the wire.</div>';
+    return;
+  }
+  const trades=tx.filter(t=>t[0]==='t'),claims=tx.filter(t=>t[0]==='w'),
+        fas=tx.filter(t=>t[0]==='f'),comm=tx.filter(t=>t[0]==='c');
+  const okClaims=claims.filter(c=>c[6]).length;
+  $('#wire-note').textContent=`Sleeper transaction log · ${trades.length} trades · ${okClaims} claims · ${fas.length} free-agent moves`;
+  $('#wire-trades-h').textContent=`Trades (${trades.length})`;
+  $('#wire-trades').innerHTML=trades.map(([,ts,rids,adds,pks,faab])=>{
+    const byTeam={};(rids||[]).forEach(r=>byTeam[r]=[]);
+    Object.entries(adds||{}).forEach(([pid,rid])=>{(byTeam[rid]=byTeam[rid]||[]).push(wireAsset(pid)+' '+dynTag(pid));});
+    (pks||[]).forEach(([se,rn,orig,to])=>{(byTeam[to]=byTeam[to]||[]).push(
+      `<span class="pos"><i style="background:var(--money)"></i>PK</span> <span class="nm">${se} ${ORD[rn-1]}</span> <span class="sv">orig ${teamsById[orig]?.h||orig}</span>`);});
+    (faab||[]).forEach(([from,to,amt])=>{(byTeam[to]=byTeam[to]||[]).push(
+      `<span class="nm">$${amt} FAAB</span> <span class="sv">from ${teamsById[from]?.h||from}</span>`);});
+    return `<div class="txcard"><div class="txdate">${fmtDate(ts)}</div>${
+      Object.entries(byTeam).map(([rid,assets])=>`<div class="txside"><span class="txteam">${teamsById[rid]?.h||rid} receives</span><div class="txassets">${
+        assets.map(a=>`<span class="txasset">${a}</span>`).join('')||'<span class="src">—</span>'}</div></div>`).join('')}</div>`;
+  }).join('');
+  $('#wire-claims-h').innerHTML=`Waiver Claims (${okClaims}) <span class="h3sub">FAAB bids — failed claims included</span>`;
+  $('#wire-claims').innerHTML=claims.map(([,ts,rid,addp,drops,bid,ok])=>`
+    <div class="wireline${ok?'':' cut'}"><span class="pr">$${bid}</span>
+      ${addp?wireAsset(addp):''}
+      <span class="who">${ok?`→ <b>${teamsById[rid]?.h||rid}</b>`:`✗ ${teamsById[rid]?.h||rid} missed`}${
+        drops&&drops.length?` · dropped ${drops.map(d=>(P[d]||{n:d}).n).join(', ')}`:''}</span>
+      <span class="src" style="margin-left:auto">${fmtDate(ts)}</span></div>`).join('')||'<div class="fx-empty">No claims yet.</div>';
+  $('#wire-fa-h').textContent=`Free Agency (${fas.length})`;
+  $('#wire-fa').innerHTML=fas.slice(0,50).map(([,ts,rid,addp,drops])=>`
+    <div class="wireline"><span class="pr" style="color:var(--mute);font-size:11px">${fmtDate(ts)}</span>
+      <span class="who"><b>${teamsById[rid]?.h||rid}</b></span>
+      ${addp?`<span style="color:var(--accent-ink);font-weight:700">+</span> ${wireAsset(addp)}`:''}
+      ${drops&&drops.length?`<span style="color:var(--danger);font-weight:700">−</span> ${drops.map(wireAsset).join(' ')}`:''}</div>`).join('')
+    +(comm.length?`<div class="fx-empty">+ ${comm.length} commissioner adjustments</div>`:'');
+}
+
+/* ---------- trade desk ---------- */
+const VALS=FF.values||{}, PICKVALS=FF.pickVals||{}, TEAMPICKS=FF.teamPicks||{};
+const dyn=pid=>(VALS[pid]||[0])[0]||0;
+const red=pid=>(VALS[pid]||[0,0])[1]||0;
+const trend=pid=>(VALS[pid]||[0,0,0])[2]||0;
+const ageOf=pid=>(VALS[pid]||[0,0,0,0,0,0])[5]||0;
+const ORD=['1st','2nd','3rd','4th'];
+const isPick=id=>id.startsWith('PK|');
+function pickParts(id){const [,season,rnd,orig]=id.split('|');return{season,rnd:+rnd,orig:+orig};}
+function assetVal(id){if(isPick(id)){const p=pickParts(id);return PICKVALS[`${p.season}-${p.rnd}`]||0;}return dyn(id);}
+function assetRed(id){return isPick(id)?0:red(id);}
+function assetName(id,holderRid){if(isPick(id)){const p=pickParts(id);
+    const via=p.orig===holderRid?'own':'via '+teamsById[p.orig].h;
+    return `${p.season} ${ORD[p.rnd-1]} (${via})`;}
+  return (P[id]||{n:id}).n;}
+function assetPos(id){return isPick(id)?'PK':(P[id]||{}).p||'?';}
+function teamPlayerIds(t){return [...t.st,...t.bn,...t.tx,...t.ir];}
+function teamAssetPool(rid){const t=teamsById[rid];
+  const pl=teamPlayerIds(t).map(String);
+  const pk=(TEAMPICKS[String(rid)]||[]).map(([s,r,o])=>`PK|${s}|${r}|${o}`);
+  return [...pl,...pk].sort((a,b)=>assetVal(b)-assetVal(a));}
+function lineupValue(pids){ // win-now strength from redraft values
+  const by={QB:[],RB:[],WR:[],TE:[],K:[]};
+  pids.forEach(pid=>{const p=P[pid]?.p;if(by[p])by[p].push(red(pid));});
+  for(const k in by)by[k].sort((a,b)=>b-a);
+  let v=0;const take=(pos,n)=>{for(let i=0;i<n;i++)v+=by[pos][i]||0;by[pos]=by[pos].slice(n);};
+  take('QB',1);take('RB',2);take('WR',2);take('TE',1);take('K',1);
+  const flex=[...by.RB,...by.WR,...by.TE].sort((a,b)=>b-a);v+=(flex[0]||0)+(flex[1]||0);
+  return Math.round(v);}
+function adjTotal(vals){return Math.round(vals.slice().sort((a,b)=>b-a).reduce((s,v,i)=>s+v/(1+0.14*i),0));}
+function fmtK(n){return n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'k':String(n);}
+
+const TR={A:{rid:null,assets:[]},B:{rid:null,assets:[]}};
+function sideEl(s){return document.getElementById('side-'+s);}
+function renderSide(s){
+  const st=TR[s],other=TR[s==='A'?'B':'A'];const el=sideEl(s);
+  const t=teamsById[st.rid];
+  const opts=FF.teams.map(x=>`<option value="${x.rid}" ${x.rid===st.rid?'selected':''}>${x.h} — ${tn(x)}</option>`).join('');
+  const q=(st.q||'').toLowerCase();
+  const pool=teamAssetPool(st.rid).filter(id=>!st.assets.includes(id));
+  const sug=pool.filter(id=>!q||assetName(id,st.rid).toLowerCase().includes(q)).slice(0,q?24:12);
+  el.innerHTML=`
+    <select class="tsel" data-side="${s}" aria-label="Franchise ${s}">${opts}</select>
+    <input class="tsearch" data-side="${s}" placeholder="Add player or pick…" value="${st.q||''}" aria-label="Search assets">
+    <div class="tsug">${sug.map(id=>`<button data-side="${s}" data-id="${id}">
+        <span class="pos"><i style="background:${isPick(id)?'var(--money)':posColor(assetPos(id))}"></i>${assetPos(id)}</span>
+        <span>${assetName(id,st.rid)}</span><span class="sv">${fmtK(assetVal(id))}</span></button>`).join('')}</div>
+    <div class="tassets">${st.assets.map(id=>`<div class="tasset">
+        <span class="pos"><i style="background:${isPick(id)?'var(--money)':posColor(assetPos(id))}"></i>${assetPos(id)}</span>
+        <span class="nm">${assetName(id,st.rid)}</span><span class="sv">${assetVal(id).toLocaleString()}</span>
+        <button class="rm" data-side="${s}" data-rm="${id}" aria-label="Remove">✕</button></div>`).join('')||'<div style="color:var(--mute);font-size:12.5px;padding:2px">Nothing added yet.</div>'}</div>
+    <div class="subtotal"><span>${t.h} sends ${st.assets.length} asset${st.assets.length===1?'':'s'}</span>
+      <b>${st.assets.reduce((sum,id)=>sum+assetVal(id),0).toLocaleString()}</b></div>`;
+}
+function renderVerdict(){
+  const A=TR.A,B=TR.B,ta=teamsById[A.rid],tb=teamsById[B.rid];
+  const va=A.assets.map(assetVal),vb=B.assets.map(assetVal);
+  const el=document.getElementById('verdict');
+  if(!va.length&&!vb.length){el.innerHTML='';return;}
+  const ra=va.reduce((a,b)=>a+b,0),rb=vb.reduce((a,b)=>a+b,0);
+  const aa=adjTotal(va),ab=adjTotal(vb);
+  const hi=Math.max(aa,ab)||1,diff=Math.round(Math.abs(aa-ab)/hi*100);
+  const lead=aa===ab?null:(aa>ab?tb:ta); // side receiving more value wins the ledger
+  let cls='fair',txt='Dead even — fair on the dynasty ledger.';
+  if(diff>=6&&diff<15){cls='edge';txt=`Slight edge to <b>${lead.h}</b> (+${diff}% adjusted).`}
+  else if(diff>=15&&diff<30){cls='edge';txt=`Clear edge to <b>${lead.h}</b> (+${diff}% adjusted).`}
+  else if(diff>=30){cls='lop';txt=`Lopsided toward <b>${lead.h}</b> (+${diff}% adjusted) — expect a veto storm.`}
+  // lineup impact (players only)
+  const aRoster=teamPlayerIds(ta).map(String),bRoster=teamPlayerIds(tb).map(String);
+  const aGivesP=A.assets.filter(id=>!isPick(id)),bGivesP=B.assets.filter(id=>!isPick(id));
+  const aAfter=aRoster.filter(id=>!aGivesP.includes(id)).concat(bGivesP);
+  const bAfter=bRoster.filter(id=>!bGivesP.includes(id)).concat(aGivesP);
+  const dA=lineupValue(aAfter)-lineupValue(aRoster), dB=lineupValue(bAfter)-lineupValue(bRoster);
+  const wAge=(ids)=>{const ps=ids.filter(id=>!isPick(id)&&ageOf(id)>0);if(!ps.length)return null;
+    const w=ps.reduce((s,id)=>s+dyn(id),0)||1;return ps.reduce((s,id)=>s+ageOf(id)*dyn(id),0)/w;};
+  const agA=wAge(A.assets),agB=wAge(B.assets);
+  let ageNote='—';
+  if(agA!=null&&agB!=null){const d=agA-agB;
+    ageNote=Math.abs(d)<0.8?'Similar age profiles':`Youth flows to <b>${d>0?tb.h:ta.h}</b> (${Math.abs(d).toFixed(1)} yrs)`;}
+  const dv=x=>x===0?'±0':(x>0?`<span class="pos-d">+${x.toLocaleString()}</span>`:`<span class="neg-d">−${Math.abs(x).toLocaleString()}</span>`);
+  el.innerHTML=`
+    <div class="vhead"><span class="${cls}">${txt}</span></div>
+    <div class="balance" aria-hidden="true"><span class="ba" style="inset:0 ${100-(aa/(aa+ab||1)*100)}% 0 0"></span><span class="bb" style="inset:0 0 0 ${(aa/(aa+ab||1)*100)}%"></span></div>
+    <div class="balance-cap"><span>${ta.h} sends ${aa.toLocaleString()} adj (${ra.toLocaleString()} raw)</span><span>${tb.h} sends ${ab.toLocaleString()} adj (${rb.toLocaleString()} raw)</span></div>
+    <div class="vgrid">
+      <div class="vbox">${ta.h} win-now lineup<div class="big">${dv(dA)}</div>projected starter value</div>
+      <div class="vbox">${tb.h} win-now lineup<div class="big">${dv(dB)}</div>projected starter value</div>
+      <div class="vbox">Age flow<div class="big" style="font-size:14px">${ageNote}</div>value-weighted</div>
+      <div class="vbox">Consolidation<div class="big" style="font-size:14px">${va.length===vb.length?'Even pieces':(va.length>vb.length?ta.h:tb.h)+' consolidates'}</div>fewer, better assets win adj value</div>
+    </div>`;
+}
+function renderTrade(){renderSide('A');renderSide('B');renderVerdict();}
+document.getElementById('sec-trade').addEventListener('click',e=>{
+  const add=e.target.closest('.tsug button');
+  if(add){TR[add.dataset.side].assets.push(add.dataset.id);TR[add.dataset.side].q='';renderTrade();return;}
+  const rm=e.target.closest('.rm');
+  if(rm){const st=TR[rm.dataset.side];st.assets=st.assets.filter(x=>x!==rm.dataset.rm);renderTrade();return;}
+});
+document.getElementById('sec-trade').addEventListener('input',e=>{
+  if(e.target.matches('.tsearch')){TR[e.target.dataset.side].q=e.target.value;
+    const s=e.target.dataset.side,pos=e.target.selectionStart;renderSide(s);
+    const inp=sideEl(s).querySelector('.tsearch');inp.focus();inp.setSelectionRange(pos,pos);renderVerdict();}
+});
+document.getElementById('sec-trade').addEventListener('change',e=>{
+  if(e.target.matches('select.tsel[data-side]')){const s=e.target.dataset.side;
+    TR[s]={rid:+e.target.value,assets:[],q:''};renderTrade();}
+});
+document.getElementById('t-swap').addEventListener('click',()=>{const a=TR.A;TR.A=TR.B;TR.B=a;renderTrade();});
+
+/* ---------- finder ---------- */
+function findTrades(me,them){
+  const partners=them?[them]:FF.teams.map(t=>t.rid).filter(r=>r!==me);
+  const out=[];
+  const cands=rid=>{
+    const pool=teamAssetPool(rid);
+    const pl=pool.filter(id=>!isPick(id)&&assetPos(id)!=='K'&&assetVal(id)>=700).slice(0,13);
+    const pk=pool.filter(id=>isPick(id)&&assetVal(id)>=700).slice(0,4);
+    return [...pl,...pk];};
+  const myRoster=teamPlayerIds(teamsById[me]).map(String);
+  const myBase=lineupValue(myRoster);
+  const myC=cands(me);
+  partners.forEach(pr=>{
+    const prRoster=teamPlayerIds(teamsById[pr]).map(String);
+    const prBase=lineupValue(prRoster);
+    const prC=cands(pr);
+    const evalTrade=(give,get)=>{
+      const gv=give.map(assetVal),rv2=get.map(assetVal);
+      const a=adjTotal(gv),b=adjTotal(rv2);
+      const hi=Math.max(a,b)||1,diff=Math.abs(a-b)/hi*100;
+      if(diff>12)return;
+      const biggest=Math.max(...gv,...rv2);if(biggest<1500)return;
+      const givP=give.filter(id=>!isPick(id)),getP=get.filter(id=>!isPick(id));
+      const myAfter=myRoster.filter(id=>!givP.includes(id)).concat(getP);
+      const prAfter=prRoster.filter(id=>!getP.includes(id)).concat(givP);
+      const dMe=lineupValue(myAfter)-myBase, dPr=lineupValue(prAfter)-prBase;
+      const prLedger=a-b; // dynasty value flowing to partner
+      if(dMe<50)return;
+      if(dPr<0&&prLedger<=0)return;
+      if(dPr<-400)return;
+      const score=dMe+0.6*Math.max(0,dPr)+0.15*Math.max(0,prLedger)-25*diff;
+      out.push({pr,give,get,dMe,dPr,diff:Math.round(diff),prLedger,score});};
+    myC.forEach(g=>prC.forEach(r=>{if(assetPos(g)!==assetPos(r)||Math.abs(assetVal(g)-assetVal(r))>assetVal(g)*0.15)evalTrade([g],[r]);}));
+    for(let i=0;i<myC.length;i++)for(let j=i+1;j<myC.length;j++)prC.forEach(r=>evalTrade([myC[i],myC[j]],[r]));
+    myC.forEach(g=>{for(let i=0;i<prC.length;i++)for(let j=i+1;j<prC.length;j++)evalTrade([g],[prC[i],prC[j]]);});
+  });
+  out.sort((x,y)=>y.score-x.score);
+  const seen=new Set(),perGet={},perPartner={},top=[];
+  const partnerCap=them?12:4;
+  for(const o of out){const k=o.give.concat('=',o.get).join('+');
+    if(seen.has(k))continue;seen.add(k);
+    const primary=o.get.reduce((m,id)=>assetVal(id)>assetVal(m)?id:m,o.get[0]);
+    const gk=o.pr+'>'+primary;
+    if((perGet[gk]||0)>=2)continue;
+    if((perPartner[o.pr]||0)>=partnerCap)continue;
+    perGet[gk]=(perGet[gk]||0)+1;perPartner[o.pr]=(perPartner[o.pr]||0)+1;
+    top.push(o);if(top.length>=12)break;}
+  return top;}
+function renderFinder(list,me){
+  const el=document.getElementById('fx-out');
+  if(!list.length){el.innerHTML='<div class="fx-empty">No win-win deals inside a 12% fairness band right now. Loosen up by exploring manually in the analyzer above.</div>';return;}
+  const dv=x=>x>0?`<span class="pos-d">+${x.toLocaleString()}</span>`:(x<0?`<span class="neg-d">−${Math.abs(x).toLocaleString()}</span>`:'±0');
+  el.innerHTML=list.map((o,i)=>{
+    const t=teamsById[o.pr];
+    const line=(dir,ids,rid)=>`<div class="fxline"><span class="dir">${dir}</span>${ids.map(id=>
+      `<span class="pos"><i style="background:${isPick(id)?'var(--money)':posColor(assetPos(id))}"></i>${assetPos(id)}</span><span class="nm">${assetName(id,rid)}</span><span class="sv">${fmtK(assetVal(id))}</span>`).join('<span class="sv">+</span>')}</div>`;
+    return `<button class="fxrow" data-i="${i}">
+      ${line('Send',o.give,me)}${line('Get',o.get,o.pr)}
+      <div class="fxmeta"><span>with <b>${t.h}</b></span><span>fairness ±${o.diff}%</span>
+        <span>your lineup ${dv(o.dMe)}</span><span>their lineup ${dv(o.dPr)}</span>
+        ${o.prLedger>0?`<span>ledger sweetener to them ${dv(o.prLedger)}</span>`:''}</div>
+    </button>`;}).join('');
+  el.querySelectorAll('.fxrow').forEach(b=>b.addEventListener('click',()=>{
+    const o=list[+b.dataset.i];
+    TR.A={rid:curFxMe,assets:o.give.slice(),q:''};TR.B={rid:o.pr,assets:o.get.slice(),q:''};
+    renderTrade();document.getElementById('side-A').scrollIntoView({behavior:'smooth',block:'center'});}));}
+let curFxMe=null;
+document.getElementById('fx-go').addEventListener('click',()=>{
+  curFxMe=+document.getElementById('fx-me').value;
+  const them=+document.getElementById('fx-them').value||null;
+  document.getElementById('fx-out').innerHTML='<div class="fx-empty">Scanning rosters…</div>';
+  setTimeout(()=>renderFinder(findTrades(curFxMe,them),curFxMe),30);});
+
+/* ---------- value board / waivers / movers ---------- */
+function renderMarket(){
+  const rows=FF.teams.map(t=>{
+    const pids=teamPlayerIds(t).map(String);
+    const pv=pids.reduce((s,id)=>s+dyn(id),0);
+    const kv=(TEAMPICKS[String(t.rid)]||[]).reduce((s,[se,r])=>s+(PICKVALS[`${se}-${r}`]||0),0);
+    const ages=t.st.map(String).filter(id=>ageOf(id)>0);
+    const avAge=ages.length?ages.reduce((s,id)=>s+ageOf(id),0)/ages.length:0;
+    return {t,pv,kv,tot:pv+kv,now:lineupValue(pids),age:avAge};})
+    .sort((a,b)=>b.tot-a.tot);
+  document.getElementById('vboard').innerHTML=`<thead><tr><th>#</th><th>Franchise</th><th class="num">Total</th><th class="num">Picks</th><th class="num">Win-now</th><th class="num" title="Average age of current starters">St. age</th></tr></thead><tbody>`+
+    rows.map((r,i)=>`<tr><td>${i+1}</td><td class="pname">${r.t.h}</td>
+      <td class="num mono money">${fmtK(r.tot)}</td>
+      <td class="num mono">${fmtK(r.kv)}</td><td class="num mono">${fmtK(r.now)}</td>
+      <td class="num mono">${r.age?r.age.toFixed(1):'—'}</td></tr>`).join('')+
+    `</tbody>`;
+  const rostered=new Set();FF.teams.forEach(t=>teamPlayerIds(t).forEach(id=>rostered.add(String(id))));
+  const fa=Object.keys(VALS).filter(id=>!rostered.has(id)&&P[id]).sort((a,b)=>dyn(b)-dyn(a)).slice(0,10);
+  document.getElementById('wwatch').innerHTML=`<thead><tr><th>Player</th><th>Pos</th><th>NFL</th><th class="num">Value</th><th class="num">30-day</th></tr></thead><tbody>`+
+    fa.map(id=>`<tr><td class="pname">${P[id].n}</td><td><span class="pos"><i style="background:${posColor(P[id].p)}"></i>${P[id].p}</span></td>
+      <td class="nfl">${P[id].t}</td><td class="num mono money">${dyn(id).toLocaleString()}</td>
+      <td class="num mono">${trend(id)>0?'<span style="color:var(--accent-ink)">+'+trend(id)+'</span>':(trend(id)<0?'<span style="color:var(--danger)">'+trend(id)+'</span>':'0')}</td></tr>`).join('')+`</tbody>`;
+  const owned=[...rostered].filter(id=>VALS[id]&&P[id]);
+  const movers=[...owned.sort((a,b)=>trend(b)-trend(a)).slice(0,5),...owned.sort((a,b)=>trend(a)-trend(b)).slice(0,5).reverse()];
+  const holder={};FF.teams.forEach(t=>teamPlayerIds(t).forEach(id=>holder[String(id)]=t.h));
+  document.getElementById('movers').innerHTML=`<thead><tr><th>Player</th><th>Holder</th><th class="num">Value</th><th class="num">30-day</th></tr></thead><tbody>`+
+    movers.map(id=>`<tr><td class="pname">${P[id].n} <span class="nfl">${P[id].p}</span></td><td>${holder[id]||'—'}</td>
+      <td class="num mono">${fmtK(dyn(id))}</td>
+      <td class="num mono">${trend(id)>0?'<span style="color:var(--accent-ink)">+'+trend(id)+'</span>':'<span style="color:var(--danger)">'+trend(id)+'</span>'}</td></tr>`).join('')+`</tbody>`;
+}
+function initTrade(){
+  const meDefault=(FF.teams.find(t=>t.h==='H1nks')||FF.teams[0]).rid;
+  const other=FF.teams.find(t=>t.rid!==meDefault).rid;
+  TR.A={rid:meDefault,assets:[],q:''};TR.B={rid:other,assets:[],q:''};
+  document.getElementById('fx-me').innerHTML=FF.teams.map(t=>`<option value="${t.rid}" ${t.rid===meDefault?'selected':''}>${t.h}</option>`).join('');
+  document.getElementById('fx-them').innerHTML='<option value="0">any franchise</option>'+FF.teams.map(t=>`<option value="${t.rid}">${t.h}</option>`).join('');
+  curFxMe=meDefault;
+  renderTrade();renderMarket();
+}
+
+/* ---------- boot ---------- */
+renderFr(curFr);
+renderBoard();
+initTrade();
+renderWire();
+setTab(curTab);
+</script>
